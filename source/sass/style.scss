@@ -1,0 +1,150 @@
+/*
+ * index.scss 
+ */
+
+@import "normalize";
+
+@mixin box-sizing($prop) {
+    -webkit-box-sizing: $prop;
+    -moz-box-sizing: $prop;
+    box-sizing: $prop;
+}
+
+// generic transform
+@mixin transform($transforms) {
+	   -moz-transform: $transforms;
+	     -o-transform: $transforms;
+	    -ms-transform: $transforms;
+	-webkit-transform: $transforms;
+            transform: $transforms;
+}
+
+html, body, * {
+    margin: 0;
+    padding: 0;
+    @include box-sizing(border-box);
+}
+
+html, body {
+    overflow: hidden;
+}
+
+#webvj--container {
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#webvj--indicator {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+
+    img {
+        z-index: 100;
+        position: relative;
+        width: 100px;
+        height: 100px;
+
+        top: 50%;
+        // transform: translateY(-60%);
+        @include transform(translateY(-60%));
+    }
+}
+
+#webvj--description {
+    z-index: 1000;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    div {
+        padding: 00px 0px 10px 10px;
+    }
+
+    .header {
+        h1 {
+            display: inline-block;
+            letter-spacing: 1px;
+            color: #333333;
+            margin: 0px;
+            font-size: 26px;
+            font-weight: normal;
+        }
+
+        img {
+            margin-left: 4px;
+            display: inline-block;
+            width: 18px;
+            &:hover {
+            }
+        }
+    }
+
+    .content {
+        p {
+            font-size: 15px;
+        }
+    }
+
+    .content, .profile {
+        a {
+            color: #888888;
+            font-size: 15px;
+            text-decoration: none;
+            display: inline;
+
+            &:hover {
+                border-bottom: 1px solid #888888;
+            }
+        }
+    }
+
+    .profile {
+    }
+
+}
+
+.virtual-keyboard {
+    ul {
+        list-style: none;
+        margin-bottom: 1px;
+
+        li {
+            margin-right: 3px;
+            display: inline-block;
+
+            button {
+                border: 1px solid #000;
+                background-color: transparent;
+
+                line-height: 22px;
+                width: 60px;
+                height: 22px;
+
+                &.pressed {
+                    border: 1px solid #fff;
+                    background-color: #000;
+                    color: white;
+                }
+            }
+        }
+
+        &:first-child {
+        }
+
+        &:nth-child(2) {
+            margin-left: 20px;
+        }
+
+        &:nth-child(3) {
+            margin-left: 50px;
+        }
+    }
+}
+
+

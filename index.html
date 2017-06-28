@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <head>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="./dest/javascripts/lib/threejs/three.r84.min.js"></script>
+        <link rel="stylesheet" href="../dest/css/style.css" type="text/css">
+    </head>
+    <body>
+        <div class="virtual-keyboard">
+            <ul v-for="row in keys">
+                <li v-for="key in row"><button v-on:mouseOver="hover(key)" v-text="key.char" v-bind:class="{ pressed: key.pressed }"></button></li>
+            </ul>
+        </div>
+        <div id="webvj--indicator">
+            <img src="./dest/images/loading.gif" />
+        </div>
+        <div id="webvj--description">
+            <div class="header">
+                <h1 class="title">ShibuyaCrowd</h1>
+                <a href="https://github.com/mattatz/ShibuyaCrowd"><img src="./dest/images/github.png"></a>
+            </div>
+            <div class="content">
+                <p>ShibuyaCrowd uses </p>
+                <p>I did VJing with this at <a href="https://www.super-deluxe.com/room/4258/" target="_blank">REPUBLIC</a>.</p>
+            </div>
+            <div class="profile">
+                Made by <a href="http://mattatz.org" target="_blank">mattatz</a>
+            </div>
+        </div>
+        <script type="text/javascript" src="./dest/javascripts/main.js"></script>
+    </body>
+</html>
