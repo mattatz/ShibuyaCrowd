@@ -395,9 +395,9 @@ html, body {
 #webvj--description {
   z-index: 1000;
   position: fixed;
-  bottom: 10px;
+  top: 10px;
   left: 10px;
-  font-family: Arial, Helvetica, sans-serif; }
+  font-family: HelveticaNeue, Helvetica, "Hiragino Kaku Gothic ProN", meiryo, 'ms pgothic', Arial, sans-serif; }
   #webvj--description div {
     padding: 00px 0px 10px 10px; }
   #webvj--description .header h1 {
@@ -414,30 +414,78 @@ html, body {
   #webvj--description .content p {
     font-size: 15px; }
   #webvj--description .content a, #webvj--description .profile a {
-    color: #888888;
+    color: #333333;
     font-size: 15px;
     text-decoration: none;
+    border-bottom: 1px solid #888888;
     display: inline; }
     #webvj--description .content a:hover, #webvj--description .profile a:hover {
-      border-bottom: 1px solid #888888; }
+      color: #888888;
+      border-bottom: 0px solid #888888; }
 
-.virtual-keyboard ul {
-  list-style: none;
-  margin-bottom: 1px; }
-  .virtual-keyboard ul li {
-    margin-right: 3px;
-    display: inline-block; }
-    .virtual-keyboard ul li button {
-      border: 1px solid #000;
-      background-color: transparent;
-      line-height: 22px;
-      width: 60px;
+.virtual-keyboard {
+  z-index: 1000;
+  position: fixed;
+  left: calc(50% - 320px);
+  bottom: 20px;
+  width: 640px; }
+  .virtual-keyboard div {
+    padding: 0px 10px 0px 10px; }
+  .virtual-keyboard div {
+    margin-bottom: 5px; }
+    .virtual-keyboard div p.description {
+      font-size: 12px; }
+  .virtual-keyboard div.keyboard-row {
+    margin-bottom: 3px; }
+    .virtual-keyboard div.keyboard-row span {
+      font-size: 13px;
+      display: inline-block;
+      margin-right: 10px;
+      width: 50px;
+      height: 28px;
+      line-height: 28px; }
+    .virtual-keyboard div.keyboard-row ul {
+      list-style: none;
+      display: inline-block;
+      height: 28px; }
+      .virtual-keyboard div.keyboard-row ul li {
+        margin-right: 3px;
+        display: inline-block; }
+        .virtual-keyboard div.keyboard-row ul li button {
+          width: 80px;
+          line-height: 28px;
+          border: 1px solid #000;
+          border-radius: 4px;
+          background-color: transparent;
+          font-size: 11px; }
+          .virtual-keyboard div.keyboard-row ul li button:focus {
+            outline: 0; }
+          .virtual-keyboard div.keyboard-row ul li button.pressed {
+            border: 1px solid #fff;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.4);
+            -webkit-transition: .2s ease-in-out;
+            transition: .2s ease-in-out; }
+    .virtual-keyboard div.keyboard-row:nth-child(3) {
+      margin-left: calc(80px / 3); }
+    .virtual-keyboard div.keyboard-row:nth-child(4) {
+      margin-left: 80px; }
+    .virtual-keyboard div.keyboard-row:last-child {
+      margin-bottom: 0px; }
+
+@media screen and (max-width: 640px) {
+  .virtual-keyboard {
+    width: 320px;
+    left: calc(50% - 160px); }
+    .virtual-keyboard div.keyboard-row span {
+      display: none; }
+    .virtual-keyboard div.keyboard-row ul {
       height: 22px; }
-      .virtual-keyboard ul li button.pressed {
-        border: 1px solid #fff;
-        background-color: #000;
-        color: white; }
-  .virtual-keyboard ul:nth-child(2) {
-    margin-left: 20px; }
-  .virtual-keyboard ul:nth-child(3) {
-    margin-left: 50px; }
+      .virtual-keyboard div.keyboard-row ul li button {
+        width: 40px;
+        line-height: 22px;
+        font-size: 10px; }
+    .virtual-keyboard div.keyboard-row:nth-child(3) {
+      margin-left: calc(40px / 3); }
+    .virtual-keyboard div.keyboard-row:nth-child(4) {
+      margin-left: 40px; } }

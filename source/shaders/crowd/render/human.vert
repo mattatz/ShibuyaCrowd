@@ -51,7 +51,7 @@ uniform vec4 slitScale;
 uniform vec4 slitSpeed;
 uniform vec3 slitSize;
 uniform float slitOffset;
-uniform sampler2D textureNoise;
+// uniform sampler2D textureNoise;
 
 uniform sampler2D textureBoundaryDepth;
 uniform float useBoundary;
@@ -187,11 +187,12 @@ vec3 slit_scan_position(vec3 pos, vec2 seed) {
         float offset = slitOffset * 0.15;
         vec2 uv0 = vec2(t * slitSpeed.x + offset + pos.y * slitScale.z * 0.1, seed.x + tt);
         vec2 uv1 = vec2(seed.y + tt, t * slitSpeed.y + offset + pos.y * slitScale.w * 0.1);
-        pos.x += (texture2D(textureNoise, uv0).r - 0.5) * slitScale.x;
-        pos.z += (texture2D(textureNoise, uv1).r - 0.5) * slitScale.y;
 
-        // pos.x += snoise2(vec2(time * slitSpeed.x + slitOffset + pos.y * slitScale.z, seed.x) - 0.5) * slitScale.x;
-        // pos.z += snoise2(vec2(seed.y, time * slitSpeed.y + slitOffset + pos.y * slitScale.w) - 0.5) * slitScale.y;
+        // pos.x += (texture2D(textureNoise, uv0).r - 0.5) * slitScale.x;
+        // pos.z += (texture2D(textureNoise, uv1).r - 0.5) * slitScale.y;
+
+        pos.x += snoise2(vec2(time * slitSpeed.x + slitOffset + pos.y * slitScale.z, seed.x) - 0.5) * slitScale.x;
+        pos.z += snoise2(vec2(seed.y, time * slitSpeed.y + slitOffset + pos.y * slitScale.w) - 0.5) * slitScale.y;
     } else {
         // edge
         pos.x += (random(vec2(floor(time * slitSpeed.x + slitOffset + pos.y * slitScale.z), seed.x)) - 0.5) * slitScale.x;

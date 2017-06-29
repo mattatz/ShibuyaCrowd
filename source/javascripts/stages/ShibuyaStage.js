@@ -56,7 +56,14 @@ const converter = new CoordinateConverter(scale, offsetX, offsetY);
 
 const fixedCameraPointsPath = "/dest/camera/points.json";
 
-export default class MapStage extends Stage {
+let toggles = {
+    useSlit: false,
+    cityNoise: false,
+    cityWireframe: false,
+    posteffectInvert: false
+};
+
+export default class ShibuyaStage extends Stage {
 
     constructor(vj, resolution) {
         super(vj, resolution);
@@ -225,16 +232,6 @@ export default class MapStage extends Stage {
 
     input(keyCode) {
         switch(keyCode) {
-            case KeyCode.shift:
-                this.crowd.system.movement = CrowdMode.Street;
-                this.crowd.mesh.animateUseSlit(0);
-                this.city.animateWireframe(0.25);
-                this.city.animateNoiseIntensity(1);
-                this.composite.mirror = 0;
-                this.composite.animateInvert(0.0);
-                this.composite.glitchSpeed = 0.4;
-                break;
-
             // crowd movement
             case KeyCode.a:
                 this.crowd.system.movement = CrowdMode.Street;
@@ -253,32 +250,26 @@ export default class MapStage extends Stage {
                 this.crowd.system.movement = CrowdMode.Stop;
                 break;
 
-            case KeyCode.z:
-                this.crowd.mesh.toggleUseSlit();
+            case KeyCode.g:
+                this.crowd.mesh.animateUseSlit(toggles.useSlit ? 0 : 1);
+                toggles.useSlit = !toggles.useSlit;
                 break;
 
-            case KeyCode.x:
-                if(this.crowd.mesh.useSlit < 0.5) {
-                    this.crowd.mesh.animateUseSlit(1);
-                }
+            case KeyCode.h:
+                toggles.useSlit = true;
+                this.crowd.mesh.animateUseSlit(1);
                 this.crowd.mesh.animateSlitOffset(MathUtil.randomRange(0.7, 1.2));
                 break;
 
             // city 
-            case KeyCode.n:
-                if(this.city.noise.x < 5) {
-                    this.city.animateNoiseIntensity(11.5);
-                } else {
-                    this.city.animateNoiseIntensity(1);
-                }
+            case KeyCode.z:
+                this.city.animateNoiseIntensity(toggles.cityNoise ? 1 : 11.5);
+                toggles.cityNoise = !toggles.cityNoise;
                 break;
 
-            case KeyCode.m:
-                if(this.city.wireframe < 0.5) {
-                    this.city.animateWireframe(1.0);
-                } else {
-                    this.city.animateWireframe(0.25);
-                }
+            case KeyCode.x:
+                this.city.animateWireframe(toggles.cityWireframe ? 0.25 : 1.0);
+                toggles.cityWireframe = !toggles.cityWireframe;
                 break;
 
             // camera
@@ -304,15 +295,16 @@ export default class MapStage extends Stage {
                 this.moveCamera(keyCode);
                 break;
 
-            case KeyCode.u:
-                this.composite.toggleInvert();
+            case KeyCode.r:
+                this.composite.animateInvert(toggles.posteffectInvert ? 0.0 : 1.0);
+                toggles.posteffectInvert = !toggles.posteffectInvert;
                 break;
 
-            case KeyCode.i:
+            case KeyCode.t:
                 this.composite.mirror = (this.composite.mirror + 1) % 5;
                 break;
 
-            case KeyCode.o:
+            case KeyCode.y:
                 if(this.composite.glitchSpeed > 1.0) {
                     this.composite.glitchSpeed = 0.4;
                 } else {
@@ -377,16 +369,16 @@ export default class MapStage extends Stage {
         let controls = this.cameraControls["polar"];
         switch(keyCode) {
             case KeyCode.leftArrow:
-                controls.polar.theta0 -= 0.2;
-                break;
-            case KeyCode.upArrow:
                 controls.polar.radius -= 20;
                 break;
-            case KeyCode.rightArrow:
+            case KeyCode.upArrow:
                 controls.polar.theta0 += 0.2;
                 break;
-            case KeyCode.downArrow:
+            case KeyCode.rightArrow:
                 controls.polar.radius += 20;
+                break;
+            case KeyCode.downArrow:
+                controls.polar.theta0 -= 0.2;
                 break;
         }
 

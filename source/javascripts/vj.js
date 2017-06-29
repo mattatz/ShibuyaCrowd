@@ -4,6 +4,7 @@ import TWEEN from "./lib/Tween";
 import AudioAnalyser from "./utils/AudioAnalyser";
 import ShibuyaStage from "./stages/ShibuyaStage";
 import Keyboard from "./Keyboard";
+import { KeyCodeDetector } from "./utils/KeyCode";
 
 const resolution = {
     width: 1920,
@@ -25,8 +26,15 @@ export default class VJ {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(this.renderer.domElement);
 
+        let isKeyDown = false;
         document.addEventListener("keydown", (e) => {
-            this.input(e.keyCode);
+            if(KeyCodeDetector.isArrowKey(e.keyCode) || !isKeyDown) {
+                this.input(e.keyCode);
+            }
+            isKeyDown = true;
+        });
+        document.addEventListener("keyup", (e) => {
+            isKeyDown = false;
         });
 
         window.addEventListener("resize", (e) => {
@@ -81,6 +89,9 @@ export default class VJ {
 
 }
 
-new Keyboard(".virtual-keyboard");
-new VJ();
+let vj = new VJ();
+let keyboard = new Keyboard(".virtual-keyboard");
+keyboard.addEventListener("keydown", (e) => {
+    vj.input(e.message.keyCode);
+});
 

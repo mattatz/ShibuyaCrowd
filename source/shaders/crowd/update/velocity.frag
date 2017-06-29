@@ -22,47 +22,6 @@ vec2 limit_vel(vec2 vel) {
     return vel;
 }
 
-vec3 boids(vec2 uv, vec3 pos) {
-    const float threshold = 0.002;
-    const float radius = 0.02;
-
-    const float repelThreshold = 0.2;
-    const float alignmentThreshold = 0.6;
-    const float cohesionThreshold = 0.2;
-
-    const float repelAlignmentDelta = abs(repelThreshold - alignmentThreshold);
-    const float alignmentCohesionDelta = abs(alignmentThreshold - cohesionThreshold);
-
-    vec3 v = vec3(0, 0, 0);
-
-    for(float y = 0.0; y < 1.0; y += resolutionTexelSize.y) {
-        for(float x = 0.0; x < 1.0; x += resolutionTexelSize.x) {
-            vec2 ref = vec2(x, y);
-
-            vec3 other = texture2D(texturePosition, ref).xyz;
-            vec3 dir = (pos.xyz - other.xyz);
-            float dist = length(dir);
-
-            if(dist < 0.0001 || radius < dist) continue;
-
-            float d = dist / radius;
-            if(d < repelThreshold) {
-                // repel
-                v += dir * 0.1;
-            } else if(d < alignmentThreshold) {
-                // alignment
-                vec3 vel = texture2D(textureVelocity, ref).xyz;
-                v += vel.xyz * 0.1;
-            } else {
-                // cohesion
-                v -= dir * 0.1;
-            }
-        }
-    }
-
-    return v;
-}
-
 vec3 repel(vec2 uv, vec3 pos) {
     const float threshold = 0.002;
 
@@ -153,37 +112,6 @@ vec4 direction_velocity(vec2 uv, vec4 pos, vec4 vel) {
     return vel;
 }
 
-vec4 boids_velocity(vec2 uv, vec4 pos, vec4 vel) {
-    vec3 v = boids(uv, pos.xyz);
-    float mag = length(v);
-    const float threshold = 0.005;
-    if(mag > threshold) {
-        vel.xyz += normalize(v) * clamp(mag, 0.0, 0.01);
-    }
-
-    return vel;
-}
-
-vec4 fluid_velocity(vec2 uv, vec4 pos, vec4 vel) {
-    float t = time * 0.1;
-    vec3 seed = pos.xyz * 0.1;
-    seed.y += t;
-    vec3 v = vec3(
-        snoise3(vec3(seed.xyz)),
-        snoise3(vec3(seed.yzx)),
-        snoise3(vec3(seed.zxy))
-    ) * 0.00025;
-
-    vec3 dir = vec3(gatherPosition, 0) - pos.xyz;
-    vec3 right = cross(normalize(dir), vec3(0, 0, 1));
-    v += right * 0.0005;
-    v += vec3(0, 0, 0.2); // up force
-
-    vel.xyz += v;
-
-    return vel;
-}
-
 void init() {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
 }
@@ -204,12 +132,8 @@ void update() {
     } else if(movement == 3) {
         vel = direction_velocity(uv, pos, vel);
         vel.xyz += repel(uv, pos.xyz);
-    } else if(movement == 4) {
-        vel = boids_velocity(uv, pos, vel);
     } else if(movement == 5) {
         vel.xyz += repel(uv, pos.xyz);
-    } else if(movement == 6) {
-        vel = fluid_velocity(uv, pos, vel);
     } else {
         vel = street_velocity(uv, pos, vel);
         vel.xyz += repel(uv, pos.xyz) * 0.25;

@@ -65,14 +65,6 @@ export default class CompositePass extends THREE.ShaderPass {
         .start();
     }
 
-    toggleInvert() {
-        if(this.invert < 0.5) {
-            this.animateInvert(1.0);
-        } else {
-            this.animateInvert(0.0);
-        }
-    }
-
     animateInvert(to, duration = 1000) {
         let self = this;
         TWEEN.remove(self.invertTween);

@@ -69,11 +69,11 @@ export default class CrowdMesh extends THREE.Mesh {
 
                 useSlit: { type: "f", value: 0.0 },
                 useSlitNoise: { type: "i", value: true },
-                slitScale: { type: "v4", value: new THREE.Vector4(10.5, 11.2, 0.1, 0.1) },
+                slitScale: { type: "v4", value: new THREE.Vector4(5.0, 4.2, 0.1, 0.1) },
                 slitSpeed: { type: "v4", value: new THREE.Vector4(0.6, 0.6, 1, 1) },
                 slitOffset: { type: "f", value: 0.0 },
                 slitSize: { type: "v3", value: new THREE.Vector3(1, 1, 1) },
-                textureNoise: { type: "t", value: null },
+                // textureNoise: { type: "t", value: null },
 
                 textureBoundaryDepth: { type: "t", value: null },
                 useBoundary: { type: "f", value: 1.0 },
@@ -189,7 +189,7 @@ export default class CrowdMesh extends THREE.Mesh {
 
             let textureNoise = textures[4];
             textureNoise.wrapS = textureNoise.wrapT = THREE.RepeatWrapping;
-            this.material.uniforms.textureNoise.value = textureNoise;
+            // this.material.uniforms.textureNoise.value = textureNoise;
 
             let objLoader = new THREE.OBJLoader();
             objLoader.load(

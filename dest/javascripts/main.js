@@ -64,9 +64,11 @@
 
 	var _ShibuyaStage2 = _interopRequireDefault(_ShibuyaStage);
 
-	var _Keyboard = __webpack_require__(68);
+	var _Keyboard = __webpack_require__(67);
 
 	var _Keyboard2 = _interopRequireDefault(_Keyboard);
+
+	var _KeyCode = __webpack_require__(25);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -95,8 +97,15 @@
 	        this.renderer.setSize(window.innerWidth, window.innerHeight);
 	        container.appendChild(this.renderer.domElement);
 
+	        var isKeyDown = false;
 	        document.addEventListener("keydown", function (e) {
-	            _this.input(e.keyCode);
+	            if (_KeyCode.KeyCodeDetector.isArrowKey(e.keyCode) || !isKeyDown) {
+	                _this.input(e.keyCode);
+	            }
+	            isKeyDown = true;
+	        });
+	        document.addEventListener("keyup", function (e) {
+	            isKeyDown = false;
 	        });
 
 	        window.addEventListener("resize", function (e) {
@@ -163,8 +172,11 @@
 	exports.default = VJ;
 
 
-	new _Keyboard2.default(".virtual-keyboard");
-	new VJ();
+	var vj = new VJ();
+	var keyboard = new _Keyboard2.default(".virtual-keyboard");
+	keyboard.addEventListener("keydown", function (e) {
+	    vj.input(e.message.keyCode);
+	});
 
 /***/ }),
 /* 1 */
@@ -1455,31 +1467,31 @@
 
 	var _SRParticleSystem2 = _interopRequireDefault(_SRParticleSystem);
 
-	var _CrowdSystem = __webpack_require__(45);
+	var _CrowdSystem = __webpack_require__(44);
 
 	var _CrowdSystem2 = _interopRequireDefault(_CrowdSystem);
 
-	var _OSM = __webpack_require__(46);
+	var _OSM = __webpack_require__(45);
 
 	var _OSM2 = _interopRequireDefault(_OSM);
 
-	var _HighwayGroup = __webpack_require__(47);
+	var _HighwayGroup = __webpack_require__(46);
 
 	var _HighwayGroup2 = _interopRequireDefault(_HighwayGroup);
 
-	var _Highway = __webpack_require__(48);
+	var _Highway = __webpack_require__(47);
 
 	var _Highway2 = _interopRequireDefault(_Highway);
 
-	var _CEL = __webpack_require__(49);
+	var _CEL = __webpack_require__(48);
 
 	var _CEL2 = _interopRequireDefault(_CEL);
 
-	var _SRParticleMesh = __webpack_require__(53);
+	var _SRParticleMesh = __webpack_require__(52);
 
 	var _SRParticleMesh2 = _interopRequireDefault(_SRParticleMesh);
 
-	var _CrowdMesh = __webpack_require__(55);
+	var _CrowdMesh = __webpack_require__(54);
 
 	var _CrowdMesh2 = _interopRequireDefault(_CrowdMesh);
 
@@ -1515,20 +1527,27 @@
 
 	var fixedCameraPointsPath = "/dest/camera/points.json";
 
-	var MapStage = function (_Stage) {
-	    _inherits(MapStage, _Stage);
+	var toggles = {
+	    useSlit: false,
+	    cityNoise: false,
+	    cityWireframe: false,
+	    posteffectInvert: false
+	};
 
-	    function MapStage(vj, resolution) {
-	        _classCallCheck(this, MapStage);
+	var ShibuyaStage = function (_Stage) {
+	    _inherits(ShibuyaStage, _Stage);
 
-	        var _this = _possibleConstructorReturn(this, (MapStage.__proto__ || Object.getPrototypeOf(MapStage)).call(this, vj, resolution));
+	    function ShibuyaStage(vj, resolution) {
+	        _classCallCheck(this, ShibuyaStage);
+
+	        var _this = _possibleConstructorReturn(this, (ShibuyaStage.__proto__ || Object.getPrototypeOf(ShibuyaStage)).call(this, vj, resolution));
 
 	        _this.updaters = [];
 	        _this.init(vj);
 	        return _this;
 	    }
 
-	    _createClass(MapStage, [{
+	    _createClass(ShibuyaStage, [{
 	        key: "init",
 	        value: function init(vj) {
 	            var _this2 = this;
@@ -1661,17 +1680,17 @@
 	    }, {
 	        key: "activate",
 	        value: function activate(mode) {
-	            _get(MapStage.prototype.__proto__ || Object.getPrototypeOf(MapStage.prototype), "activate", this).call(this, mode);
+	            _get(ShibuyaStage.prototype.__proto__ || Object.getPrototypeOf(ShibuyaStage.prototype), "activate", this).call(this, mode);
 	        }
 	    }, {
 	        key: "deactivate",
 	        value: function deactivate(mode) {
-	            _get(MapStage.prototype.__proto__ || Object.getPrototypeOf(MapStage.prototype), "deactivate", this).call(this, mode);
+	            _get(ShibuyaStage.prototype.__proto__ || Object.getPrototypeOf(ShibuyaStage.prototype), "deactivate", this).call(this, mode);
 	        }
 	    }, {
 	        key: "update",
 	        value: function update(dt, t, frame) {
-	            _get(MapStage.prototype.__proto__ || Object.getPrototypeOf(MapStage.prototype), "update", this).call(this, dt, t, frame);
+	            _get(ShibuyaStage.prototype.__proto__ || Object.getPrototypeOf(ShibuyaStage.prototype), "update", this).call(this, dt, t, frame);
 
 	            if (this.cameraControls) {
 	                var controls = this.cameraControls[this.selectedCameraControls];
@@ -1685,16 +1704,6 @@
 	        key: "input",
 	        value: function input(keyCode) {
 	            switch (keyCode) {
-	                case _KeyCode2.default.shift:
-	                    this.crowd.system.movement = _CrowdSystem.CrowdMode.Street;
-	                    this.crowd.mesh.animateUseSlit(0);
-	                    this.city.animateWireframe(0.25);
-	                    this.city.animateNoiseIntensity(1);
-	                    this.composite.mirror = 0;
-	                    this.composite.animateInvert(0.0);
-	                    this.composite.glitchSpeed = 0.4;
-	                    break;
-
 	                // crowd movement
 	                case _KeyCode2.default.a:
 	                    this.crowd.system.movement = _CrowdSystem.CrowdMode.Street;
@@ -1713,32 +1722,26 @@
 	                    this.crowd.system.movement = _CrowdSystem.CrowdMode.Stop;
 	                    break;
 
-	                case _KeyCode2.default.z:
-	                    this.crowd.mesh.toggleUseSlit();
+	                case _KeyCode2.default.g:
+	                    this.crowd.mesh.animateUseSlit(toggles.useSlit ? 0 : 1);
+	                    toggles.useSlit = !toggles.useSlit;
 	                    break;
 
-	                case _KeyCode2.default.x:
-	                    if (this.crowd.mesh.useSlit < 0.5) {
-	                        this.crowd.mesh.animateUseSlit(1);
-	                    }
+	                case _KeyCode2.default.h:
+	                    toggles.useSlit = true;
+	                    this.crowd.mesh.animateUseSlit(1);
 	                    this.crowd.mesh.animateSlitOffset(_MathUtil2.default.randomRange(0.7, 1.2));
 	                    break;
 
 	                // city 
-	                case _KeyCode2.default.n:
-	                    if (this.city.noise.x < 5) {
-	                        this.city.animateNoiseIntensity(11.5);
-	                    } else {
-	                        this.city.animateNoiseIntensity(1);
-	                    }
+	                case _KeyCode2.default.z:
+	                    this.city.animateNoiseIntensity(toggles.cityNoise ? 1 : 11.5);
+	                    toggles.cityNoise = !toggles.cityNoise;
 	                    break;
 
-	                case _KeyCode2.default.m:
-	                    if (this.city.wireframe < 0.5) {
-	                        this.city.animateWireframe(1.0);
-	                    } else {
-	                        this.city.animateWireframe(0.25);
-	                    }
+	                case _KeyCode2.default.x:
+	                    this.city.animateWireframe(toggles.cityWireframe ? 0.25 : 1.0);
+	                    toggles.cityWireframe = !toggles.cityWireframe;
 	                    break;
 
 	                // camera
@@ -1764,15 +1767,16 @@
 	                    this.moveCamera(keyCode);
 	                    break;
 
-	                case _KeyCode2.default.u:
-	                    this.composite.toggleInvert();
+	                case _KeyCode2.default.r:
+	                    this.composite.animateInvert(toggles.posteffectInvert ? 0.0 : 1.0);
+	                    toggles.posteffectInvert = !toggles.posteffectInvert;
 	                    break;
 
-	                case _KeyCode2.default.i:
+	                case _KeyCode2.default.t:
 	                    this.composite.mirror = (this.composite.mirror + 1) % 5;
 	                    break;
 
-	                case _KeyCode2.default.o:
+	                case _KeyCode2.default.y:
 	                    if (this.composite.glitchSpeed > 1.0) {
 	                        this.composite.glitchSpeed = 0.4;
 	                    } else {
@@ -1841,16 +1845,16 @@
 	            var controls = this.cameraControls["polar"];
 	            switch (keyCode) {
 	                case _KeyCode2.default.leftArrow:
-	                    controls.polar.theta0 -= 0.2;
-	                    break;
-	                case _KeyCode2.default.upArrow:
 	                    controls.polar.radius -= 20;
 	                    break;
-	                case _KeyCode2.default.rightArrow:
+	                case _KeyCode2.default.upArrow:
 	                    controls.polar.theta0 += 0.2;
 	                    break;
-	                case _KeyCode2.default.downArrow:
+	                case _KeyCode2.default.rightArrow:
 	                    controls.polar.radius += 20;
+	                    break;
+	                case _KeyCode2.default.downArrow:
+	                    controls.polar.theta0 -= 0.2;
 	                    break;
 	            }
 
@@ -1865,7 +1869,7 @@
 	    }, {
 	        key: "destroy",
 	        value: function destroy() {
-	            _get(MapStage.prototype.__proto__ || Object.getPrototypeOf(MapStage.prototype), "destroy", this).call(this);
+	            _get(ShibuyaStage.prototype.__proto__ || Object.getPrototypeOf(ShibuyaStage.prototype), "destroy", this).call(this);
 
 	            if (this.composer) {
 	                this.composer.renderTarget1.dispose();
@@ -1920,7 +1924,7 @@
 
 	            var chromaticAberration = new THREE.ShaderPass({
 	                vertexShader: __webpack_require__(37),
-	                fragmentShader: __webpack_require__(59),
+	                fragmentShader: __webpack_require__(58),
 	                uniforms: {
 	                    tDiffuse: { type: "t", value: null },
 	                    distortion: { type: "f", value: 2.2 }
@@ -1936,7 +1940,7 @@
 	    }, {
 	        key: "resize",
 	        value: function resize(w, h) {
-	            _get(MapStage.prototype.__proto__ || Object.getPrototypeOf(MapStage.prototype), "resize", this).call(this, w, h);
+	            _get(ShibuyaStage.prototype.__proto__ || Object.getPrototypeOf(ShibuyaStage.prototype), "resize", this).call(this, w, h);
 
 	            if (this.camera) {
 	                this.camera.aspect = w / h;
@@ -1994,9 +1998,9 @@
 	                2 << 10,
 	                // 4096,
 	                {
-	                    position: __webpack_require__(60),
-	                    velocity: __webpack_require__(61),
-	                    rotation: __webpack_require__(62),
+	                    position: __webpack_require__(59),
+	                    velocity: __webpack_require__(60),
+	                    rotation: __webpack_require__(61),
 	                    speed: 1.5,
 	                    type: THREE.HalfFloatType
 	                });
@@ -2004,8 +2008,8 @@
 	                var loader = new THREE.TextureLoader();
 	                loader.load("../dest/textures/particle.png", function (tex) {
 	                    var particle = new _SRParticleMesh2.default(system.sideCount, 4, {
-	                        vertexShader: __webpack_require__(63),
-	                        fragmentShader: __webpack_require__(64)
+	                        vertexShader: __webpack_require__(62),
+	                        fragmentShader: __webpack_require__(63)
 	                    });
 
 	                    particle.renderOrder = 1000;
@@ -2057,9 +2061,9 @@
 	            // 2048,
 	            // 4096,
 	            {
-	                position: __webpack_require__(65),
-	                velocity: __webpack_require__(66),
-	                rotation: __webpack_require__(67),
+	                position: __webpack_require__(64),
+	                velocity: __webpack_require__(65),
+	                rotation: __webpack_require__(66),
 	                textureStreet: textureStreet,
 	                type: THREE.FloatType
 	            });
@@ -2138,10 +2142,10 @@
 	        }
 	    }]);
 
-	    return MapStage;
+	    return ShibuyaStage;
 	}(_Stage3.default);
 
-	exports.default = MapStage;
+	exports.default = ShibuyaStage;
 
 /***/ }),
 /* 5 */
@@ -6234,7 +6238,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.default = {
+
+
+	var KeyCode = {
 	    space: 32,
 	    leftArrow: 37,
 	    upArrow: 38,
@@ -6267,6 +6273,17 @@
 	    y: 89,
 	    z: 90
 	};
+
+	var KeyCodeDetector = {
+
+	    isArrowKey: function isArrowKey(keyCode) {
+	        return keyCode == KeyCode.leftArrow || keyCode == KeyCode.upArrow || keyCode == KeyCode.rightArrow || keyCode == KeyCode.downArrow;
+	    }
+
+	};
+
+	exports.default = KeyCode;
+	exports.KeyCodeDetector = KeyCodeDetector;
 
 /***/ }),
 /* 26 */
@@ -7603,7 +7620,7 @@
 /* 38 */
 /***/ (function(module, exports) {
 
-	module.exports = "#define GLSLIFY 1\n//\n// Description : Array and textureless GLSL 2D simplex noise function.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_2_0(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec2 mod289_2_0(vec2 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec3 permute_2_1(vec3 x) {\n  return mod289_2_0(((x*34.0)+1.0)*x);\n}\n\nfloat snoise_2_2(vec2 v)\n  {\n  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0\n                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)\n                     -0.577350269189626,  // -1.0 + 2.0 * C.x\n                      0.024390243902439); // 1.0 / 41.0\n// First corner\n  vec2 i  = floor(v + dot(v, C.yy) );\n  vec2 x0 = v -   i + dot(i, C.xx);\n\n// Other corners\n  vec2 i1;\n  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0\n  //i1.y = 1.0 - i1.x;\n  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);\n  // x0 = x0 - 0.0 + 0.0 * C.xx ;\n  // x1 = x0 - i1 + 1.0 * C.xx ;\n  // x2 = x0 - 1.0 + 2.0 * C.xx ;\n  vec4 x12 = x0.xyxy + C.xxzz;\n  x12.xy -= i1;\n\n// Permutations\n  i = mod289_2_0(i); // Avoid truncation effects in permutation\n  vec3 p = permute_2_1( permute_2_1( i.y + vec3(0.0, i1.y, 1.0 ))\n    + i.x + vec3(0.0, i1.x, 1.0 ));\n\n  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);\n  m = m*m ;\n  m = m*m ;\n\n// Gradients: 41 points uniformly over a line, mapped onto a diamond.\n// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)\n\n  vec3 x = 2.0 * fract(p * C.www) - 1.0;\n  vec3 h = abs(x) - 0.5;\n  vec3 ox = floor(x + 0.5);\n  vec3 a0 = x - ox;\n\n// Normalise gradients implicitly by scaling m\n// Approximation of: m *= inversesqrt( a0*a0 + h*h );\n  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );\n\n// Compute final noise value at P\n  vec3 g;\n  g.x  = a0.x  * x0.x  + h.x  * x0.y;\n  g.yz = a0.yz * x12.xz + h.yz * x12.yw;\n  return 130.0 * dot(m, g);\n}\n\n\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_3(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_3(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_4(vec4 x) {\n     return mod289_1_3(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_5(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_6(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_7 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_8 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_8;\n  vec3 i1 = min( g_1_8.xyz, l.zxy );\n  vec3 i2 = max( g_1_8.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_7.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_3(i);\n  vec4 p = permute_1_4( permute_1_4( permute_1_4(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_7.wyz - D_1_7.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_9 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_10 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_9.xy,h.z);\n  vec3 p3 = vec3(a1_1_9.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_5(vec4(dot(p0_1_10,p0_1_10), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_10 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_10,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\n\nuniform vec2 resolution;\nuniform sampler2D tDiffuse;\n\nuniform float time;\nuniform float invert;\nuniform sampler2D tGradient;\n\nvarying vec2 vUv;\n\nvoid main() {\n    float n = (snoise_1_6(vec3(vUv, time)) + 1.0) * 0.5;\n    float v = (snoise_2_2(vec2(time, 0.0)) + 1.0) * 0.5;\n    vec4 grad = texture2D(tGradient, vec2(n, v));\n    grad.rgb = mix(grad.rgb, vec3(1.0, 1.0, 1.0) - grad.rgb, invert);\n    gl_FragColor = grad;\n}\n"
+	module.exports = "#define GLSLIFY 1\n//\n// Description : Array and textureless GLSL 2D simplex noise function.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_0(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec2 mod289_1_0(vec2 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec3 permute_1_1(vec3 x) {\n  return mod289_1_0(((x*34.0)+1.0)*x);\n}\n\nfloat snoise_1_2(vec2 v)\n  {\n  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0\n                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)\n                     -0.577350269189626,  // -1.0 + 2.0 * C.x\n                      0.024390243902439); // 1.0 / 41.0\n// First corner\n  vec2 i  = floor(v + dot(v, C.yy) );\n  vec2 x0 = v -   i + dot(i, C.xx);\n\n// Other corners\n  vec2 i1;\n  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0\n  //i1.y = 1.0 - i1.x;\n  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);\n  // x0 = x0 - 0.0 + 0.0 * C.xx ;\n  // x1 = x0 - i1 + 1.0 * C.xx ;\n  // x2 = x0 - 1.0 + 2.0 * C.xx ;\n  vec4 x12 = x0.xyxy + C.xxzz;\n  x12.xy -= i1;\n\n// Permutations\n  i = mod289_1_0(i); // Avoid truncation effects in permutation\n  vec3 p = permute_1_1( permute_1_1( i.y + vec3(0.0, i1.y, 1.0 ))\n    + i.x + vec3(0.0, i1.x, 1.0 ));\n\n  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);\n  m = m*m ;\n  m = m*m ;\n\n// Gradients: 41 points uniformly over a line, mapped onto a diamond.\n// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)\n\n  vec3 x = 2.0 * fract(p * C.www) - 1.0;\n  vec3 h = abs(x) - 0.5;\n  vec3 ox = floor(x + 0.5);\n  vec3 a0 = x - ox;\n\n// Normalise gradients implicitly by scaling m\n// Approximation of: m *= inversesqrt( a0*a0 + h*h );\n  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );\n\n// Compute final noise value at P\n  vec3 g;\n  g.x  = a0.x  * x0.x  + h.x  * x0.y;\n  g.yz = a0.yz * x12.xz + h.yz * x12.yw;\n  return 130.0 * dot(m, g);\n}\n\n\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_2_3(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_2_3(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_2_4(vec4 x) {\n     return mod289_2_3(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_2_5(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_2_6(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_2_7 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_2_8 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_2_8;\n  vec3 i1 = min( g_2_8.xyz, l.zxy );\n  vec3 i2 = max( g_2_8.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_2_7.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_2_3(i);\n  vec4 p = permute_2_4( permute_2_4( permute_2_4(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_2_7.wyz - D_2_7.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_2_9 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_2_10 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_2_9.xy,h.z);\n  vec3 p3 = vec3(a1_2_9.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_2_5(vec4(dot(p0_2_10,p0_2_10), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_2_10 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_2_10,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\n\nuniform vec2 resolution;\nuniform sampler2D tDiffuse;\n\nuniform float time;\nuniform float invert;\nuniform sampler2D tGradient;\n\nvarying vec2 vUv;\n\nvoid main() {\n    float n = (snoise_2_6(vec3(vUv, time)) + 1.0) * 0.5;\n    float v = (snoise_1_2(vec2(time, 0.0)) + 1.0) * 0.5;\n    vec4 grad = texture2D(tGradient, vec2(n, v));\n    grad.rgb = mix(grad.rgb, vec3(1.0, 1.0, 1.0) - grad.rgb, invert);\n    gl_FragColor = grad;\n}\n"
 
 /***/ }),
 /* 39 */
@@ -7705,15 +7722,6 @@
 	            }).start();
 	        }
 	    }, {
-	        key: "toggleInvert",
-	        value: function toggleInvert() {
-	            if (this.invert < 0.5) {
-	                this.animateInvert(1.0);
-	            } else {
-	                this.animateInvert(0.0);
-	            }
-	        }
-	    }, {
 	        key: "animateInvert",
 	        value: function animateInvert(to) {
 	            var duration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
@@ -7760,7 +7768,7 @@
 /* 40 */
 /***/ (function(module, exports) {
 
-	module.exports = "#define GLSLIFY 1\nhighp float random_2_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_1(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_1(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_2(vec4 x) {\n     return mod289_1_1(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_3(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_4(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_5 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_6 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_6;\n  vec3 i1 = min( g_1_6.xyz, l.zxy );\n  vec3 i2 = max( g_1_6.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_5.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_1(i);\n  vec4 p = permute_1_2( permute_1_2( permute_1_2(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_5.wyz - D_1_5.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_7 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_8 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_7.xy,h.z);\n  vec3 p3 = vec3(a1_1_7.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_3(vec4(dot(p0_1_8,p0_1_8), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_8 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_8,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\n\nuniform float time;\nuniform vec2 resolution;\nuniform sampler2D tDiffuse;\n\nuniform vec2 noiseOffset;\n\nuniform float glitchIntensity;\nuniform float glitchSpeed;\nuniform vec2 glitchWave;\nuniform vec2 glitchScale;\nuniform float glitchShift;\n\nuniform int mirror;\nuniform float invert;\nuniform float fade;\n\nvarying vec2 vUv;\n\nvec4 glitch(sampler2D texture, vec2 uv, float strength, float speed, vec2 wave, float shift, vec2 scale) {\n    float t = time * speed;\n\n    float y = uv.y * resolution.y;\n    float rgbWave = (\n        snoise_1_4(vec3(0.0, y * 0.01, t * 4.0)) * (2.0 + strength * 3.2 * wave.x)\n        * snoise_1_4(vec3(0.0, y * 0.02, t * 2.0)) * (1.0 + strength * 0.4 * wave.y)\n        + step(0.9995, sin(y * 0.005 + t * 1.6)) * 1.2\n        + step(0.9999, sin(y * 0.005 + t * 2.0)) * -1.8\n        ) / resolution.x;\n    float rgbDiff = ((shift + 1.0) + sin(t * 5.0 + uv.y * 4.0) * (2.0 * strength + 1.0)) / resolution.x;\n\n    vec3 rgb = texture2D(texture, uv).rgb;\n\n    float bnTime = floor(t * 2.0);\n    float noiseX = step((snoise_1_4(vec3(0.0, uv.x * scale.x, bnTime)) + 1.0) * 0.5, strength * 0.3);\n    float noiseY = step((snoise_1_4(vec3(0.0, uv.y * scale.y, bnTime)) + 1.0) * 0.5, strength * 0.3);\n    float bnMask = noiseX * noiseY;\n    float bnUvX = uv.x + sin(bnTime) * 0.2 + rgbWave;\n    float bnR = texture2D(texture, vec2(bnUvX + rgbDiff, uv.y)).r * bnMask;\n    float bnG = texture2D(texture, vec2(bnUvX, uv.y)).g * bnMask;\n    float bnB = texture2D(texture, vec2(bnUvX - rgbDiff, uv.y)).b * bnMask;\n    vec4 blockNoise = vec4(bnR, bnG, bnB, 1.0);\n\n    float bnTime2 = floor(t * 2.5);\n    float noiseX2 = step((snoise_1_4(vec3(0.0, uv.x * 2.0 * scale.x, bnTime2)) + 1.0) * 0.5, strength * 0.5);\n    float noiseY2 = step((snoise_1_4(vec3(0.0, uv.y * 8.0 * scale.y, bnTime2)) + 1.0) * 0.5, strength * 0.3);\n    float bnMask2 = noiseX2 * noiseY2;\n    float bnR2 = texture2D(texture, vec2(bnUvX + rgbDiff, uv.y)).r * bnMask2;\n    float bnG2 = texture2D(texture, vec2(bnUvX, uv.y)).g * bnMask2;\n    float bnB2 = texture2D(texture, vec2(bnUvX - rgbDiff, uv.y)).b * bnMask2;\n    vec4 blockNoise2 = vec4(bnR2, bnG2, bnB2, 1.0);\n\n    return vec4(rgb, 1.0) * (1.0 - bnMask - bnMask2) + (blockNoise + blockNoise2);\n}\n\nvec2 mirror_uv(vec2 uv) {\n    if(mirror == 1) {\n        uv.x = 0.5 - abs(0.5 - uv.x);\n    } else if(mirror == 2) {\n        uv.x = 1.0 - abs(0.5 - uv.x);\n    } else if(mirror == 3) {\n        uv.y = 0.5 - abs(0.5 - uv.y);\n    } else if(mirror == 4) {\n        uv.y = 1.0 - abs(0.5 - uv.y);\n    }\n    return uv;\n}\n\nvoid main() {\n    vec2 uv = mirror_uv(vUv);\n    vec4 color = glitch(tDiffuse, uv, glitchIntensity, glitchSpeed, glitchWave, glitchShift, glitchScale);\n\n    float whiteNoise = random_2_0(vUv + noiseOffset);\n    color.rgb *= vec3(1. - whiteNoise * 0.15);\n    color.rgb = mix(color.rgb, vec3(1.0, 1.0, 1.0) - color.rgb, invert);\n\n    color.rgb *= fade;\n\n    gl_FragColor = color;\n}\n"
+	module.exports = "#define GLSLIFY 1\nhighp float random_2_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_1(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_1(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_2(vec4 x) {\n     return mod289_1_1(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_3(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_4(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_5 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_6 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_6;\n  vec3 i1 = min( g_1_6.xyz, l.zxy );\n  vec3 i2 = max( g_1_6.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_5.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_1(i);\n  vec4 p = permute_1_2( permute_1_2( permute_1_2(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_5.wyz - D_1_5.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_7 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_8 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_7.xy,h.z);\n  vec3 p3 = vec3(a1_1_7.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_3(vec4(dot(p0_1_8,p0_1_8), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_8 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_8,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\n\nuniform float time;\nuniform vec2 resolution;\nuniform sampler2D tDiffuse;\n\nuniform vec2 noiseOffset;\n\nuniform float glitchIntensity;\nuniform float glitchSpeed;\nuniform vec2 glitchWave;\nuniform vec2 glitchScale;\nuniform float glitchShift;\n\nuniform int mirror;\nuniform float invert;\nuniform float fade;\n\nvarying vec2 vUv;\n\nvec4 glitch(sampler2D texture, vec2 uv, float strength, float speed, vec2 wave, float shift, vec2 scale) {\n    float t = time * speed;\n\n    float y = uv.y * resolution.y;\n    float rgbWave = (\n        snoise_1_4(vec3(0.0, y * 0.01, t * 4.0)) * (2.0 + strength * 3.2 * wave.x)\n        * snoise_1_4(vec3(0.0, y * 0.02, t * 2.0)) * (1.0 + strength * 0.4 * wave.y)\n        + step(0.9995, sin(y * 0.005 + t * 1.6)) * 1.2\n        + step(0.9999, sin(y * 0.005 + t * 2.0)) * -1.8\n        ) / resolution.x;\n    float rgbDiff = ((shift + 1.0) + sin(t * 5.0 + uv.y * 4.0) * (2.0 * strength + 1.0)) / resolution.x;\n\n    vec3 rgb = texture2D(texture, uv).rgb;\n\n    float bnTime = floor(t * 2.0);\n    float noiseX = step((snoise_1_4(vec3(0.0, uv.x * scale.x, bnTime)) + 1.0) * 0.5, strength * 0.3);\n    float noiseY = step((snoise_1_4(vec3(0.0, uv.y * scale.y, bnTime)) + 1.0) * 0.5, strength * 0.3);\n    float bnMask = noiseX * noiseY;\n    float bnUvX = uv.x + sin(bnTime) * 0.2 + rgbWave;\n    float bnR = texture2D(texture, vec2(bnUvX + rgbDiff, uv.y)).r * bnMask;\n    float bnG = texture2D(texture, vec2(bnUvX, uv.y)).g * bnMask;\n    float bnB = texture2D(texture, vec2(bnUvX - rgbDiff, uv.y)).b * bnMask;\n    vec4 blockNoise = vec4(bnR, bnG, bnB, 1.0);\n\n    float bnTime2 = floor(t * 2.5);\n    float noiseX2 = step((snoise_1_4(vec3(0.0, uv.x * 2.0 * scale.x, bnTime2)) + 1.0) * 0.5, strength * 0.5);\n    float noiseY2 = step((snoise_1_4(vec3(0.0, uv.y * 8.0 * scale.y, bnTime2)) + 1.0) * 0.5, strength * 0.3);\n    float bnMask2 = noiseX2 * noiseY2;\n    float bnR2 = texture2D(texture, vec2(bnUvX + rgbDiff, uv.y)).r * bnMask2;\n    float bnG2 = texture2D(texture, vec2(bnUvX, uv.y)).g * bnMask2;\n    float bnB2 = texture2D(texture, vec2(bnUvX - rgbDiff, uv.y)).b * bnMask2;\n    vec4 blockNoise2 = vec4(bnR2, bnG2, bnB2, 1.0);\n\n    return vec4(rgb, 1.0) * (1.0 - bnMask - bnMask2) + (blockNoise + blockNoise2);\n}\n\nvec2 mirror_uv(vec2 uv) {\n    if(mirror == 1) {\n        uv.x = 0.5 - abs(0.5 - uv.x);\n    } else if(mirror == 2) {\n        uv.x = 1.0 - abs(0.5 - uv.x);\n    } else if(mirror == 3) {\n        uv.y = 0.5 - abs(0.5 - uv.y);\n    } else if(mirror == 4) {\n        uv.y = 1.0 - abs(0.5 - uv.y);\n    }\n    return uv;\n}\n\nvoid main() {\n    vec2 uv = mirror_uv(vUv);\n    vec4 color = glitch(tDiffuse, uv, glitchIntensity, glitchSpeed, glitchWave, glitchShift, glitchScale);\n\n    float whiteNoise = random_2_0(vUv + noiseOffset);\n    color.rgb *= vec3(1. - whiteNoise * 0.15);\n    color.rgb = mix(color.rgb, vec3(1.0, 1.0, 1.0) - color.rgb, invert);\n    color.rgb = mix(color.rgb, vec3(1.0, 1.0, 1.0), 1.0 - fade);\n\n    gl_FragColor = color;\n}\n"
 
 /***/ }),
 /* 41 */
@@ -8309,8 +8317,7 @@
 	exports.default = GPUComputationRenderer;
 
 /***/ }),
-/* 44 */,
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8467,7 +8474,7 @@
 	exports.CrowdMode = CrowdMode;
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -8511,7 +8518,7 @@
 	exports.default = OSM;
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8526,7 +8533,7 @@
 
 	var _TextureUtil2 = _interopRequireDefault(_TextureUtil);
 
-	var _Highway = __webpack_require__(48);
+	var _Highway = __webpack_require__(47);
 
 	var _Highway2 = _interopRequireDefault(_Highway);
 
@@ -8728,7 +8735,7 @@
 	exports.default = HighwayGroup;
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -8896,7 +8903,7 @@
 	exports.default = Highway;
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8920,7 +8927,7 @@
 
 	var _ObjectUtil2 = _interopRequireDefault(_ObjectUtil);
 
-	var _CELMesh = __webpack_require__(50);
+	var _CELMesh = __webpack_require__(49);
 
 	var _CELMesh2 = _interopRequireDefault(_CELMesh);
 
@@ -9125,7 +9132,7 @@
 	exports.CELModes = _CELMesh.CELModes;
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9202,7 +9209,7 @@
 
 	        var _this3 = _possibleConstructorReturn(this, (CELMesh.__proto__ || Object.getPrototypeOf(CELMesh)).call(this, geometry, null));
 
-	        var frag = __webpack_require__(51);
+	        var frag = __webpack_require__(50);
 
 	        var uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib.common, THREE.UniformsLib.lights, THREE.UniformsLib.fog, {
 	            textureCEL: { type: "t", value: null }
@@ -9214,7 +9221,7 @@
 	                    wireframe: { type: "f", value: 0.0 },
 	                    noise: { type: "v3", value: new THREE.Vector3(0, 0, 0.01) }
 	                }]),
-	                vertexShader: __webpack_require__(52),
+	                vertexShader: __webpack_require__(51),
 	                fragmentShader: frag,
 	                transparent: true,
 	                lights: true,
@@ -9293,19 +9300,19 @@
 	exports.CELMeshLoader = CELMeshLoader;
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\nuniform sampler2D textureCEL;\n\nuniform float wireframe;\n\nvarying vec2 vUv;\nvarying vec3 vBarycentric;\n\n#include <common>\n#include <packing>\n#include <lights_pars>\n#include <shadowmap_pars_fragment>\n#include <shadowmask_pars_fragment>\n#include <fog_pars_fragment>\n\nconst float gain = 0.9;\n\nvoid main() {\n    vec3 d = fwidth(vBarycentric);\n    vec3 a3 = smoothstep(vec3(0.0), gain * d, vBarycentric);\n    float t = (1.0 - min(min(a3.x, a3.y), a3.z));\n\n    // far shadow be lighter\n    float shadow = getShadowMask();\n    float depth = gl_FragCoord.z;\n    shadow *= depth;\n\n    vec4 color = texture2D(textureCEL, vUv);\n    color.rgb *= mix(0.5, 1.0, shadow);\n\n    gl_FragColor = mix(color, color * t, wireframe);\n\n    #include <fog_fragment>\n}\n"
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_0(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_0(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_1(vec4 x) {\n     return mod289_1_0(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_2(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_3(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_4 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_5 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_5;\n  vec3 i1 = min( g_1_5.xyz, l.zxy );\n  vec3 i2 = max( g_1_5.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_4.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_0(i);\n  vec4 p = permute_1_1( permute_1_1( permute_1_1(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_4.wyz - D_1_4.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_6 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_7 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_6.xy,h.z);\n  vec3 p3 = vec3(a1_1_6.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_2(vec4(dot(p0_1_7,p0_1_7), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_7 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_7,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\n\nattribute vec3 barycentric;\n\nuniform vec3 noise;\n\n#include <shadowmap_pars_vertex>\n#include <fog_pars_vertex>\n\nvarying vec3 vBarycentric;\nvarying vec2 vUv;\n\nvoid main() {\n    vUv = uv;\n    vBarycentric = barycentric;\n\n\t#include <begin_vertex>\n\n    vec3 seed = position * noise.z + vec3(0, noise.y, 0);\n    vec3 displacement = (vec3(\n        snoise_1_3(seed.xyz),\n        snoise_1_3(seed.yzx),\n        snoise_1_3(seed.zxy)\n    ) - 0.5) * noise.x;\n    transformed.xyz = transformed.xyz + displacement;\n\n    vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);\n    vec4 mvPosition = viewMatrix * vec4(worldPosition.xyz, 1.0);\n\n\t#include <shadowmap_vertex>\n\t#include <fog_vertex>\n\n    gl_Position = projectionMatrix * mvPosition;\n}\n"
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9326,7 +9333,7 @@
 
 	var _ObjectUtil2 = _interopRequireDefault(_ObjectUtil);
 
-	var _ParticleMesh2 = __webpack_require__(54);
+	var _ParticleMesh2 = __webpack_require__(53);
 
 	var _ParticleMesh3 = _interopRequireDefault(_ParticleMesh2);
 
@@ -9369,7 +9376,7 @@
 	exports.default = SRParticleMesh;
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -9493,7 +9500,7 @@
 	exports.default = ParticleMesh;
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9587,11 +9594,11 @@
 
 	            useSlit: { type: "f", value: 0.0 },
 	            useSlitNoise: { type: "i", value: true },
-	            slitScale: { type: "v4", value: new THREE.Vector4(10.5, 11.2, 0.1, 0.1) },
+	            slitScale: { type: "v4", value: new THREE.Vector4(5.0, 4.2, 0.1, 0.1) },
 	            slitSpeed: { type: "v4", value: new THREE.Vector4(0.6, 0.6, 1, 1) },
 	            slitOffset: { type: "f", value: 0.0 },
 	            slitSize: { type: "v3", value: new THREE.Vector3(1, 1, 1) },
-	            textureNoise: { type: "t", value: null },
+	            // textureNoise: { type: "t", value: null },
 
 	            textureBoundaryDepth: { type: "t", value: null },
 	            useBoundary: { type: "f", value: 1.0 },
@@ -9626,8 +9633,8 @@
 	        var defineMarine = marine ? 1.0 : 0.01;
 
 	        var _this = _possibleConstructorReturn(this, (CrowdMesh.__proto__ || Object.getPrototypeOf(CrowdMesh)).call(this, new THREE.Geometry(), new THREE.RawShaderMaterial({
-	            vertexShader: __webpack_require__(56),
-	            fragmentShader: __webpack_require__(57),
+	            vertexShader: __webpack_require__(55),
+	            fragmentShader: __webpack_require__(56),
 	            uniforms: uniforms,
 	            // side: THREE.DoubleSide
 	            side: THREE.BackSide,
@@ -9641,7 +9648,7 @@
 
 	        _this.customDepthMaterial = new THREE.RawShaderMaterial({
 	            vertexShader: _this.material.vertexShader,
-	            fragmentShader: __webpack_require__(58),
+	            fragmentShader: __webpack_require__(57),
 	            defines: {
 	                MARINE: defineMarine,
 	                DEPTH: true
@@ -9694,7 +9701,7 @@
 
 	            var textureNoise = textures[4];
 	            textureNoise.wrapS = textureNoise.wrapT = THREE.RepeatWrapping;
-	            _this.material.uniforms.textureNoise.value = textureNoise;
+	            // this.material.uniforms.textureNoise.value = textureNoise;
 
 	            var objLoader = new THREE.OBJLoader();
 	            objLoader.load(folder + "Human.obj", function (model) {
@@ -9916,79 +9923,79 @@
 	exports.default = CrowdMesh;
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports) {
 
-	module.exports = "precision mediump float;\nprecision mediump int;\n#define GLSLIFY 1\n\nhighp float random_2_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n//\n// Description : Array and textureless GLSL 2D simplex noise function.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_1(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec2 mod289_1_1(vec2 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec3 permute_1_2(vec3 x) {\n  return mod289_1_1(((x*34.0)+1.0)*x);\n}\n\nfloat snoise_1_3(vec2 v)\n  {\n  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0\n                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)\n                     -0.577350269189626,  // -1.0 + 2.0 * C.x\n                      0.024390243902439); // 1.0 / 41.0\n// First corner\n  vec2 i  = floor(v + dot(v, C.yy) );\n  vec2 x0 = v -   i + dot(i, C.xx);\n\n// Other corners\n  vec2 i1;\n  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0\n  //i1.y = 1.0 - i1.x;\n  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);\n  // x0 = x0 - 0.0 + 0.0 * C.xx ;\n  // x1 = x0 - i1 + 1.0 * C.xx ;\n  // x2 = x0 - 1.0 + 2.0 * C.xx ;\n  vec4 x12 = x0.xyxy + C.xxzz;\n  x12.xy -= i1;\n\n// Permutations\n  i = mod289_1_1(i); // Avoid truncation effects in permutation\n  vec3 p = permute_1_2( permute_1_2( i.y + vec3(0.0, i1.y, 1.0 ))\n    + i.x + vec3(0.0, i1.x, 1.0 ));\n\n  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);\n  m = m*m ;\n  m = m*m ;\n\n// Gradients: 41 points uniformly over a line, mapped onto a diamond.\n// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)\n\n  vec3 x = 2.0 * fract(p * C.www) - 1.0;\n  vec3 h = abs(x) - 0.5;\n  vec3 ox = floor(x + 0.5);\n  vec3 a0 = x - ox;\n\n// Normalise gradients implicitly by scaling m\n// Approximation of: m *= inversesqrt( a0*a0 + h*h );\n  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );\n\n// Compute final noise value at P\n  vec3 g;\n  g.x  = a0.x  * x0.x  + h.x  * x0.y;\n  g.yz = a0.yz * x12.xz + h.yz * x12.yw;\n  return 130.0 * dot(m, g);\n}\n\n\n\n\n#ifndef PI\n#define PI 3.1415926\n#endif\n\nuniform mat4 projectionMatrix;\nuniform mat4 viewMatrix;\nuniform mat4 modelMatrix;\nuniform mat3 normalMatrix;\nuniform vec3 cameraPosition;\n\n// position textures\nuniform float animSpeed;\n\nuniform sampler2D textureIdle;\nuniform vec2 idleTexelSize;\nuniform vec2 idleEnd;\nuniform vec3 idleAnimScale;\nuniform vec3 idleAnimOffset;\n\nuniform sampler2D textureWalk;\nuniform vec2 walkTexelSize;\nuniform vec2 walkEnd;\nuniform vec3 walkAnimScale;\nuniform vec3 walkAnimOffset;\n\nuniform sampler2D textureRun;\nuniform vec2 runTexelSize;\nuniform vec2 runEnd;\nuniform vec3 runAnimScale;\nuniform vec3 runAnimOffset;\n\nuniform vec3 center;\nuniform vec3 translation;\nuniform vec2 threshold;\nuniform float fps;\nuniform float time;\n\nuniform vec3 streetScale, streetOffset;\n\nuniform sampler2D texturePosition, textureVelocity, textureRotation;\n\nuniform float useSlit;\nuniform int useSlitNoise;\nuniform vec4 slitScale;\nuniform vec4 slitSpeed;\nuniform vec3 slitSize;\nuniform float slitOffset;\nuniform sampler2D textureNoise;\n\nuniform sampler2D textureBoundaryDepth;\nuniform float useBoundary;\nuniform vec3 boundaryMin, boundaryMax;\n\nuniform float height;\n\nattribute vec3 position;\n\nattribute vec3 normal;\nattribute vec2 uv;\nattribute vec2 uv2; // uv coordiate for simulation\n\nattribute vec3 scale;\nattribute vec4 fluctuation;\n\nvarying float vThrottle;\nvarying vec3 vPosition;\n\n#ifndef DEPTH\nvarying vec3 vWorld;\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\n\n#include <fog_pars_vertex>\n\n#endif\n\nconst float COLOR_DEPTH = 255.0;\nconst float COLOR_DEPTH_INV = 1.0 / COLOR_DEPTH;\n\nvec4 tex2Dlod(sampler2D tex, vec4 uv) {\n    return texture2D(tex, uv.xy);\n}\n\nvec3 sample_animation(sampler2D tex, vec2 texelSize, vec2 end, vec3 animScale, vec3 animOffset, vec3 vertex, vec2 texcoord1, float t) {\n\tfloat frame = min(t * fps, end.y);\n\n\t#ifdef BILINEAR_OFF\n\tfloat frame1 = frame;\n\t#else\n\tfloat frame1 = floor(frame);\n\tfloat frame2 = min(frame1 + 1.0, end.y);\n\tfloat tFilter = frame - frame1;\n\t#endif\n\n\tvec4 uv = vec4(0, 0, 0, 0);\n\tuv.xy = texcoord1 + vec2(0.0, frame1 * texelSize.y);\n\n\tvec3 pos1 = tex2Dlod(tex, uv).rgb;\n\n\tuv.y += 0.5;\n    vec3 pos2 = tex2Dlod(tex, uv).rgb;\n\n\tvec3 pos = (pos1 + pos2 / COLOR_DEPTH) * animScale.xyz + animOffset.xyz;\n\n\t#ifdef BILINEAR_OFF\n\tvertex.xyz = pos;\n\t#else\n\tuv.xy = texcoord1 + vec2(0.0, frame2 * texelSize.y);\n\tpos1 = tex2Dlod(tex, uv).rgb;\n\n\tuv.y += 0.5;\n\tpos2 = tex2Dlod(tex, uv).rgb;\n\n\tpos2 = (pos1 + pos2 / COLOR_DEPTH) * animScale.xyz + animOffset.xyz;\n\n\tvertex.xyz = mix(pos, pos2, tFilter);\n\t#endif\n\n    // vec3 norm = normal * fluctuation.x;\n    // return vertex + norm;\n    return vertex;\n}\n\n// Quaternion multiplication\n// http://mathworld.wolfram.com/Quaternion.html\nvec4 qmul(vec4 q1, vec4 q2) {\n\treturn vec4(\n\t\tq2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),\n\t\tq1.w * q2.w - dot(q1.xyz, q2.xyz)\n\t);\n}\n\n// Vector rotation with a quaternion\n// http://mathworld.wolfram.com/Quaternion.html\nvec3 rotate_vector(vec3 v, vec4 r) {\n\tvec4 r_c = r * vec4(-1, -1, -1, 1);\n\treturn qmul(r, qmul(vec4(v, 0), r_c)).xyz;\n}\n\nvec3 rotate_vector_at(vec3 v, vec3 center, vec4 r) {\n\tvec3 dir = v - center;\n\treturn center + rotate_vector(dir, r);\n}\n\n// A given angle of rotation about a given axis\nvec4 rotate_angle_axis(float angle, vec3 axis) {\n\tfloat sn = sin(angle * 0.5);\n\tfloat cs = cos(angle * 0.5);\n\treturn vec4(axis * sn, cs);\n}\n\nvec3 sample_idle_from(float start, float speed, vec3 vertex) {\n    float t = mod(start + time * speed, idleEnd.x);\n    return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, vertex, uv, t);\n}\n\nvec3 sample_idle(float start, float speed) {\n    float t = mod(start + time * speed, idleEnd.x);\n    return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, position, uv, t);\n}\n\nvec3 sample_rest() {\n    return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, position, uv, 0.0);\n}\n\nvec3 sample_walk(float start, float speed) {\n    float t = mod(start + time * speed, walkEnd.x);\n    return sample_animation(textureWalk, walkTexelSize, walkEnd, walkAnimScale, walkAnimOffset, position, uv, t);\n}\n\nvec3 sample_run(float start, float speed) {\n    float t = mod(start + time * speed, runEnd.x);\n    return sample_animation(textureRun, runTexelSize, runEnd, runAnimScale, runAnimOffset, position, uv, t);\n}\n\nvec3 slit_scan_position(vec3 pos, vec2 seed) {\n    if(useSlitNoise == 1) {\n        // noise\n        float t = time * 0.1;\n        float tt = t * 0.1;\n        float offset = slitOffset * 0.15;\n        vec2 uv0 = vec2(t * slitSpeed.x + offset + pos.y * slitScale.z * 0.1, seed.x + tt);\n        vec2 uv1 = vec2(seed.y + tt, t * slitSpeed.y + offset + pos.y * slitScale.w * 0.1);\n        pos.x += (texture2D(textureNoise, uv0).r - 0.5) * slitScale.x;\n        pos.z += (texture2D(textureNoise, uv1).r - 0.5) * slitScale.y;\n\n        // pos.x += snoise2(vec2(time * slitSpeed.x + slitOffset + pos.y * slitScale.z, seed.x) - 0.5) * slitScale.x;\n        // pos.z += snoise2(vec2(seed.y, time * slitSpeed.y + slitOffset + pos.y * slitScale.w) - 0.5) * slitScale.y;\n    } else {\n        // edge\n        pos.x += (random_2_0(vec2(floor(time * slitSpeed.x + slitOffset + pos.y * slitScale.z), seed.x)) - 0.5) * slitScale.x;\n        pos.z += (random_2_0(vec2(seed.y, floor(time * slitSpeed.y + slitOffset + pos.y * slitScale.w))) - 0.5) * slitScale.y;\n    }\n    return pos;\n}\n\nvec3 slit_scan(vec3 pos, vec2 seed) {\n    vec3 p0 = slit_scan_position(pos, seed);\n    vec3 p1 = slit_scan_position(pos + vec3(0.0, 0.25, 0.0), seed);\n    return mix(p0, p1, 0.5) * slitSize;\n}\n\n/*\nvoid twist(inout vec3 vertex, inout vec3 normal, float intensity, float scale, float speed) {\n    float theta = sin(time * speed + vertex.y * scale) * intensity;\n    float c = cos(theta);\n    float s = sin(theta);\n    mat3 m = mat3(c, 0, s, 0, 1, 0, -s, 0, c);\n    vertex = vertex * m;\n    normal = normal * m;\n}\n*/\n\nconst float edge_min = 0.01;\nconst float edge_max = 1.0 - edge_min;\nvec3 boundary_position(vec3 world, float t) {\n    float x = (world.x - boundaryMin.x) / (boundaryMax.x - boundaryMin.x);\n    float z = (world.z - boundaryMin.z) / (boundaryMax.z - boundaryMin.z);\n    float depth;\n    if(x < edge_min || x > edge_max || z < edge_min || z > edge_max) {\n        depth = 1.0;\n    } else {\n        depth = texture2D(textureBoundaryDepth, vec2(x, 1.0 - z)).r;\n    }\n    world.y += ((1.0 - depth) * (boundaryMax.y - boundaryMin.y) + boundaryMin.y) * t;\n    return world;\n}\n\n#ifndef DEPTH\nvoid output_varying(vec3 norm, vec3 world) {\n    vWorld = world;\n    vNormal = normal;\n    vViewPosition.xyz = -(viewMatrix * vec4(world, 1.0)).xyz;\n}\n#endif\n\nvoid alone() {\n    vec3 pos = sample_idle(0.0, 1.0);\n\n    vec4 mPosition = modelMatrix * vec4(pos, 1.0);\n\n    vec4 rot = rotate_angle_axis(-PI * 0.5 * float(MARINE), vec3(0, 1, 0));\n    mPosition.xyz = rotate_vector(mPosition.xyz, rot);\n\n    vec3 slitPosition = slit_scan(mPosition.xyz, uv2 * 10.0);\n    mPosition.xyz = mix(mPosition.xyz, slitPosition, useSlit);\n    mPosition.xyz += center;\n    mPosition.xyz += translation;\n    mPosition.xyz = boundary_position(mPosition.xyz, 1.0);\n    // mPosition.xyz = vortex(mPosition.xyz);\n\n    gl_Position = projectionMatrix * (viewMatrix * mPosition);\n\n    vPosition = position;\n    vThrottle = height;\n\n    #ifndef DEPTH\n    // vec3 n = normalize((normal + position.xyz) * 0.5);\n    output_varying(normal, mPosition.xyz);\n    #endif\n}\n\nconst float walkThres = 0.01;\nconst float invWalkThres = 1.0 / walkThres;\nconst float runThres = 0.03;\nconst float invRunThres = 1.0 / (runThres - walkThres);\n\nvoid crowd() {\n    vec4 velocity = texture2D(textureVelocity, uv2);\n\n    vec3 pos;\n    float speed = length(velocity.xyz);\n    if(speed > runThres) {\n        pos = sample_run(fluctuation.z, fluctuation.w * animSpeed);\n    } else if(speed > walkThres) {\n        pos = sample_walk(fluctuation.z, fluctuation.w * animSpeed);\n    } else {\n        vec3 idle = sample_idle(fluctuation.z, fluctuation.w * animSpeed);\n        vec3 walk = sample_walk(fluctuation.z, fluctuation.w * animSpeed);\n        pos = mix(idle, walk, clamp(speed * invWalkThres, 0.0, 1.0));\n    }\n    pos.xyz *= scale;\n\n    vec4 mPosition = modelMatrix * vec4(pos, 1.0);\n\n    vec4 rot = texture2D(textureRotation, uv2);\n\n    vec4 rotation = rotate_angle_axis(-PI * 0.5 * float(MARINE), vec3(0, 1, 0));\n    rot = qmul(rot, rotation);\n\n    mPosition.xyz = rotate_vector(mPosition.xyz, rot);\n\n    vec3 slitPosition = slit_scan(mPosition.xyz, uv2 * 10.0);\n    mPosition.xyz = mix(mPosition.xyz, slitPosition, useSlit);\n    mPosition.xyz += translation;\n\n    vec4 tr = texture2D(texturePosition, uv2);\n    vec3 streetTr = tr.xyz * streetScale + streetOffset;\n    mPosition.xyz += vec3(streetTr.x, tr.z, -streetTr.y);\n    mPosition.xyz = boundary_position(mPosition.xyz, useBoundary);\n\n    vec4 mvPosition = viewMatrix * mPosition;\n    gl_Position = projectionMatrix * mvPosition;\n\n    vPosition = position;\n    vThrottle = velocity.w * height;\n\n    #ifndef DEPTH\n    vec3 norm = rotate_vector(normal, rot);\n    output_varying(norm, mPosition.xyz);\n\n\t#include <fog_vertex>\n    #endif\n}\n\nvoid main() {\n    #ifdef ALONE\n        alone();\n    #else\n        crowd();\n    #endif\n}\n"
+	module.exports = "precision mediump float;\nprecision mediump int;\n#define GLSLIFY 1\n\nhighp float random_2_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n//\n// Description : Array and textureless GLSL 2D simplex noise function.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_1(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec2 mod289_1_1(vec2 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec3 permute_1_2(vec3 x) {\n  return mod289_1_1(((x*34.0)+1.0)*x);\n}\n\nfloat snoise_1_3(vec2 v)\n  {\n  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0\n                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)\n                     -0.577350269189626,  // -1.0 + 2.0 * C.x\n                      0.024390243902439); // 1.0 / 41.0\n// First corner\n  vec2 i  = floor(v + dot(v, C.yy) );\n  vec2 x0 = v -   i + dot(i, C.xx);\n\n// Other corners\n  vec2 i1;\n  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0\n  //i1.y = 1.0 - i1.x;\n  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);\n  // x0 = x0 - 0.0 + 0.0 * C.xx ;\n  // x1 = x0 - i1 + 1.0 * C.xx ;\n  // x2 = x0 - 1.0 + 2.0 * C.xx ;\n  vec4 x12 = x0.xyxy + C.xxzz;\n  x12.xy -= i1;\n\n// Permutations\n  i = mod289_1_1(i); // Avoid truncation effects in permutation\n  vec3 p = permute_1_2( permute_1_2( i.y + vec3(0.0, i1.y, 1.0 ))\n    + i.x + vec3(0.0, i1.x, 1.0 ));\n\n  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);\n  m = m*m ;\n  m = m*m ;\n\n// Gradients: 41 points uniformly over a line, mapped onto a diamond.\n// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)\n\n  vec3 x = 2.0 * fract(p * C.www) - 1.0;\n  vec3 h = abs(x) - 0.5;\n  vec3 ox = floor(x + 0.5);\n  vec3 a0 = x - ox;\n\n// Normalise gradients implicitly by scaling m\n// Approximation of: m *= inversesqrt( a0*a0 + h*h );\n  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );\n\n// Compute final noise value at P\n  vec3 g;\n  g.x  = a0.x  * x0.x  + h.x  * x0.y;\n  g.yz = a0.yz * x12.xz + h.yz * x12.yw;\n  return 130.0 * dot(m, g);\n}\n\n\n\n\n#ifndef PI\n#define PI 3.1415926\n#endif\n\nuniform mat4 projectionMatrix;\nuniform mat4 viewMatrix;\nuniform mat4 modelMatrix;\nuniform mat3 normalMatrix;\nuniform vec3 cameraPosition;\n\n// position textures\nuniform float animSpeed;\n\nuniform sampler2D textureIdle;\nuniform vec2 idleTexelSize;\nuniform vec2 idleEnd;\nuniform vec3 idleAnimScale;\nuniform vec3 idleAnimOffset;\n\nuniform sampler2D textureWalk;\nuniform vec2 walkTexelSize;\nuniform vec2 walkEnd;\nuniform vec3 walkAnimScale;\nuniform vec3 walkAnimOffset;\n\nuniform sampler2D textureRun;\nuniform vec2 runTexelSize;\nuniform vec2 runEnd;\nuniform vec3 runAnimScale;\nuniform vec3 runAnimOffset;\n\nuniform vec3 center;\nuniform vec3 translation;\nuniform vec2 threshold;\nuniform float fps;\nuniform float time;\n\nuniform vec3 streetScale, streetOffset;\n\nuniform sampler2D texturePosition, textureVelocity, textureRotation;\n\nuniform float useSlit;\nuniform int useSlitNoise;\nuniform vec4 slitScale;\nuniform vec4 slitSpeed;\nuniform vec3 slitSize;\nuniform float slitOffset;\n// uniform sampler2D textureNoise;\n\nuniform sampler2D textureBoundaryDepth;\nuniform float useBoundary;\nuniform vec3 boundaryMin, boundaryMax;\n\nuniform float height;\n\nattribute vec3 position;\n\nattribute vec3 normal;\nattribute vec2 uv;\nattribute vec2 uv2; // uv coordiate for simulation\n\nattribute vec3 scale;\nattribute vec4 fluctuation;\n\nvarying float vThrottle;\nvarying vec3 vPosition;\n\n#ifndef DEPTH\nvarying vec3 vWorld;\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\n\n#include <fog_pars_vertex>\n\n#endif\n\nconst float COLOR_DEPTH = 255.0;\nconst float COLOR_DEPTH_INV = 1.0 / COLOR_DEPTH;\n\nvec4 tex2Dlod(sampler2D tex, vec4 uv) {\n    return texture2D(tex, uv.xy);\n}\n\nvec3 sample_animation(sampler2D tex, vec2 texelSize, vec2 end, vec3 animScale, vec3 animOffset, vec3 vertex, vec2 texcoord1, float t) {\n\tfloat frame = min(t * fps, end.y);\n\n\t#ifdef BILINEAR_OFF\n\tfloat frame1 = frame;\n\t#else\n\tfloat frame1 = floor(frame);\n\tfloat frame2 = min(frame1 + 1.0, end.y);\n\tfloat tFilter = frame - frame1;\n\t#endif\n\n\tvec4 uv = vec4(0, 0, 0, 0);\n\tuv.xy = texcoord1 + vec2(0.0, frame1 * texelSize.y);\n\n\tvec3 pos1 = tex2Dlod(tex, uv).rgb;\n\n\tuv.y += 0.5;\n    vec3 pos2 = tex2Dlod(tex, uv).rgb;\n\n\tvec3 pos = (pos1 + pos2 / COLOR_DEPTH) * animScale.xyz + animOffset.xyz;\n\n\t#ifdef BILINEAR_OFF\n\tvertex.xyz = pos;\n\t#else\n\tuv.xy = texcoord1 + vec2(0.0, frame2 * texelSize.y);\n\tpos1 = tex2Dlod(tex, uv).rgb;\n\n\tuv.y += 0.5;\n\tpos2 = tex2Dlod(tex, uv).rgb;\n\n\tpos2 = (pos1 + pos2 / COLOR_DEPTH) * animScale.xyz + animOffset.xyz;\n\n\tvertex.xyz = mix(pos, pos2, tFilter);\n\t#endif\n\n    // vec3 norm = normal * fluctuation.x;\n    // return vertex + norm;\n    return vertex;\n}\n\n// Quaternion multiplication\n// http://mathworld.wolfram.com/Quaternion.html\nvec4 qmul(vec4 q1, vec4 q2) {\n\treturn vec4(\n\t\tq2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),\n\t\tq1.w * q2.w - dot(q1.xyz, q2.xyz)\n\t);\n}\n\n// Vector rotation with a quaternion\n// http://mathworld.wolfram.com/Quaternion.html\nvec3 rotate_vector(vec3 v, vec4 r) {\n\tvec4 r_c = r * vec4(-1, -1, -1, 1);\n\treturn qmul(r, qmul(vec4(v, 0), r_c)).xyz;\n}\n\nvec3 rotate_vector_at(vec3 v, vec3 center, vec4 r) {\n\tvec3 dir = v - center;\n\treturn center + rotate_vector(dir, r);\n}\n\n// A given angle of rotation about a given axis\nvec4 rotate_angle_axis(float angle, vec3 axis) {\n\tfloat sn = sin(angle * 0.5);\n\tfloat cs = cos(angle * 0.5);\n\treturn vec4(axis * sn, cs);\n}\n\nvec3 sample_idle_from(float start, float speed, vec3 vertex) {\n    float t = mod(start + time * speed, idleEnd.x);\n    return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, vertex, uv, t);\n}\n\nvec3 sample_idle(float start, float speed) {\n    float t = mod(start + time * speed, idleEnd.x);\n    return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, position, uv, t);\n}\n\nvec3 sample_rest() {\n    return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, position, uv, 0.0);\n}\n\nvec3 sample_walk(float start, float speed) {\n    float t = mod(start + time * speed, walkEnd.x);\n    return sample_animation(textureWalk, walkTexelSize, walkEnd, walkAnimScale, walkAnimOffset, position, uv, t);\n}\n\nvec3 sample_run(float start, float speed) {\n    float t = mod(start + time * speed, runEnd.x);\n    return sample_animation(textureRun, runTexelSize, runEnd, runAnimScale, runAnimOffset, position, uv, t);\n}\n\nvec3 slit_scan_position(vec3 pos, vec2 seed) {\n    if(useSlitNoise == 1) {\n        // noise\n        float t = time * 0.1;\n        float tt = t * 0.1;\n        float offset = slitOffset * 0.15;\n        vec2 uv0 = vec2(t * slitSpeed.x + offset + pos.y * slitScale.z * 0.1, seed.x + tt);\n        vec2 uv1 = vec2(seed.y + tt, t * slitSpeed.y + offset + pos.y * slitScale.w * 0.1);\n\n        // pos.x += (texture2D(textureNoise, uv0).r - 0.5) * slitScale.x;\n        // pos.z += (texture2D(textureNoise, uv1).r - 0.5) * slitScale.y;\n\n        pos.x += snoise_1_3(vec2(time * slitSpeed.x + slitOffset + pos.y * slitScale.z, seed.x) - 0.5) * slitScale.x;\n        pos.z += snoise_1_3(vec2(seed.y, time * slitSpeed.y + slitOffset + pos.y * slitScale.w) - 0.5) * slitScale.y;\n    } else {\n        // edge\n        pos.x += (random_2_0(vec2(floor(time * slitSpeed.x + slitOffset + pos.y * slitScale.z), seed.x)) - 0.5) * slitScale.x;\n        pos.z += (random_2_0(vec2(seed.y, floor(time * slitSpeed.y + slitOffset + pos.y * slitScale.w))) - 0.5) * slitScale.y;\n    }\n    return pos;\n}\n\nvec3 slit_scan(vec3 pos, vec2 seed) {\n    vec3 p0 = slit_scan_position(pos, seed);\n    vec3 p1 = slit_scan_position(pos + vec3(0.0, 0.25, 0.0), seed);\n    return mix(p0, p1, 0.5) * slitSize;\n}\n\n/*\nvoid twist(inout vec3 vertex, inout vec3 normal, float intensity, float scale, float speed) {\n    float theta = sin(time * speed + vertex.y * scale) * intensity;\n    float c = cos(theta);\n    float s = sin(theta);\n    mat3 m = mat3(c, 0, s, 0, 1, 0, -s, 0, c);\n    vertex = vertex * m;\n    normal = normal * m;\n}\n*/\n\nconst float edge_min = 0.01;\nconst float edge_max = 1.0 - edge_min;\nvec3 boundary_position(vec3 world, float t) {\n    float x = (world.x - boundaryMin.x) / (boundaryMax.x - boundaryMin.x);\n    float z = (world.z - boundaryMin.z) / (boundaryMax.z - boundaryMin.z);\n    float depth;\n    if(x < edge_min || x > edge_max || z < edge_min || z > edge_max) {\n        depth = 1.0;\n    } else {\n        depth = texture2D(textureBoundaryDepth, vec2(x, 1.0 - z)).r;\n    }\n    world.y += ((1.0 - depth) * (boundaryMax.y - boundaryMin.y) + boundaryMin.y) * t;\n    return world;\n}\n\n#ifndef DEPTH\nvoid output_varying(vec3 norm, vec3 world) {\n    vWorld = world;\n    vNormal = normal;\n    vViewPosition.xyz = -(viewMatrix * vec4(world, 1.0)).xyz;\n}\n#endif\n\nvoid alone() {\n    vec3 pos = sample_idle(0.0, 1.0);\n\n    vec4 mPosition = modelMatrix * vec4(pos, 1.0);\n\n    vec4 rot = rotate_angle_axis(-PI * 0.5 * float(MARINE), vec3(0, 1, 0));\n    mPosition.xyz = rotate_vector(mPosition.xyz, rot);\n\n    vec3 slitPosition = slit_scan(mPosition.xyz, uv2 * 10.0);\n    mPosition.xyz = mix(mPosition.xyz, slitPosition, useSlit);\n    mPosition.xyz += center;\n    mPosition.xyz += translation;\n    mPosition.xyz = boundary_position(mPosition.xyz, 1.0);\n    // mPosition.xyz = vortex(mPosition.xyz);\n\n    gl_Position = projectionMatrix * (viewMatrix * mPosition);\n\n    vPosition = position;\n    vThrottle = height;\n\n    #ifndef DEPTH\n    // vec3 n = normalize((normal + position.xyz) * 0.5);\n    output_varying(normal, mPosition.xyz);\n    #endif\n}\n\nconst float walkThres = 0.01;\nconst float invWalkThres = 1.0 / walkThres;\nconst float runThres = 0.03;\nconst float invRunThres = 1.0 / (runThres - walkThres);\n\nvoid crowd() {\n    vec4 velocity = texture2D(textureVelocity, uv2);\n\n    vec3 pos;\n    float speed = length(velocity.xyz);\n    if(speed > runThres) {\n        pos = sample_run(fluctuation.z, fluctuation.w * animSpeed);\n    } else if(speed > walkThres) {\n        pos = sample_walk(fluctuation.z, fluctuation.w * animSpeed);\n    } else {\n        vec3 idle = sample_idle(fluctuation.z, fluctuation.w * animSpeed);\n        vec3 walk = sample_walk(fluctuation.z, fluctuation.w * animSpeed);\n        pos = mix(idle, walk, clamp(speed * invWalkThres, 0.0, 1.0));\n    }\n    pos.xyz *= scale;\n\n    vec4 mPosition = modelMatrix * vec4(pos, 1.0);\n\n    vec4 rot = texture2D(textureRotation, uv2);\n\n    vec4 rotation = rotate_angle_axis(-PI * 0.5 * float(MARINE), vec3(0, 1, 0));\n    rot = qmul(rot, rotation);\n\n    mPosition.xyz = rotate_vector(mPosition.xyz, rot);\n\n    vec3 slitPosition = slit_scan(mPosition.xyz, uv2 * 10.0);\n    mPosition.xyz = mix(mPosition.xyz, slitPosition, useSlit);\n    mPosition.xyz += translation;\n\n    vec4 tr = texture2D(texturePosition, uv2);\n    vec3 streetTr = tr.xyz * streetScale + streetOffset;\n    mPosition.xyz += vec3(streetTr.x, tr.z, -streetTr.y);\n    mPosition.xyz = boundary_position(mPosition.xyz, useBoundary);\n\n    vec4 mvPosition = viewMatrix * mPosition;\n    gl_Position = projectionMatrix * mvPosition;\n\n    vPosition = position;\n    vThrottle = velocity.w * height;\n\n    #ifndef DEPTH\n    vec3 norm = rotate_vector(normal, rot);\n    output_varying(norm, mPosition.xyz);\n\n\t#include <fog_vertex>\n    #endif\n}\n\nvoid main() {\n    #ifdef ALONE\n        alone();\n    #else\n        crowd();\n    #endif\n}\n"
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports) {
 
 	module.exports = "// #extension GL_OES_standard_derivatives : enable\n\nprecision mediump float;\nprecision mediump int;\n#define GLSLIFY 1\n\nhighp float random_1_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n\nuniform mat4 viewMatrix;\nuniform vec3 cameraPosition;\n\nuniform float useEnv;\nuniform samplerCube textureEnv;\n\nvarying vec3 vPosition;\nvarying vec3 vWorld;\nvarying vec3 vNormal;\nvarying float vThrottle;\nvarying vec3 vViewPosition;\n\n// standard material\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform float roughness;\nuniform float metalness;\nuniform float opacity;\n\n// envmap_pars_fragment\nuniform float reflectivity;\nuniform float envMapIntensity;\n\n// meshphysical_frag\nuniform float clearCoat;\nuniform float clearCoatRoughness;\n\n#include <common>\n#include <bsdfs>\n#include <lights_pars>\n#include <lights_physical_pars_fragment>\n#include <fog_pars_fragment>\n\nvoid main() {\n    if(vPosition.y > vThrottle) {\n        discard;\n    }\n\n\tvec4 diffuseColor = vec4(diffuse, opacity);\n\tReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));\n\tvec3 totalEmissiveRadiance = emissive;\n\n    float specularStrength = 1.0;\n    float roughnessFactor = roughness;\n    float metalnessFactor = metalness;\n\n\t#include <normal_flip>\n    vec3 normal = vNormal * flipNormal;\n\n\t// accumulation\n\t#include <lights_physical_fragment>\n\t#include <lights_template>\n\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\n\tvec4 color = vec4(outgoingLight, diffuseColor.a);\n\n    vec3 eyeDir = normalize(vWorld.xyz - cameraPosition);\n    vec4 envColor = color * textureCube(textureEnv, reflect(normalize(eyeDir), normalize(normal)));\n    color = mix(color, envColor, useEnv);\n\n    gl_FragColor = color;\n    #include <fog_fragment>\n}\n"
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, exports) {
 
 	module.exports = "precision mediump float;\nprecision mediump int;\n#define GLSLIFY 1\n\n#include <packing>\n\nvarying vec3 vPosition;\nvarying float vThrottle;\n\nvoid main() {\n    if(vPosition.y > vThrottle) {\n        discard;\n    }\n\n    gl_FragColor = packDepthToRGBA(gl_FragCoord.z);\n}\n"
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\n\nvec2 barrelDistortion_1_0(vec2 coord, float amt) {\n  vec2 cc = coord - 0.5;\n  float dist = dot(cc, cc);\n  return coord + cc * dist * amt;\n}\n\nfloat sat_1_1(float t) {\n  return clamp( t, 0.0, 1.0 );\n}\n\nfloat linterp_1_2(float t) {\n  return sat_1_1(1.0 - abs(2.0 * t - 1.0));\n}\n\nfloat remap_1_3(float t, float a, float b) {\n  return sat_1_1((t - a) / (b - a));\n}\n\nvec4 spectrum_offset_1_4(float t) {\n  vec4 ret;\n  float lo = step(t, 0.5);\n  float hi = 1.0 - lo;\n  float w = linterp_1_2(remap_1_3(t, 1.0 / 6.0, 5.0 / 6.0));\n  ret = vec4(lo, 1.0, hi, 1.) * vec4(1.0 - w, w, 1.0 - w, 1.);\n  return pow(ret, vec4(1.0 / 2.2));\n}\n\nvec4 apply_1_5(sampler2D tex, vec2 uv, float distortion) {\n  const int num_iter = 9; //12;\n  const float reci_num_iter_f = 1.0 / float(num_iter);\n\n  vec4 sumcol = vec4(0.0);\n  vec4 sumw = vec4(0.0);\n  for (int i = 0; i < num_iter; i++){\n    float t = float(i) * reci_num_iter_f;\n    vec4 w = spectrum_offset_1_4(t);\n    sumw += w;\n    sumcol += w * texture2D(tex, barrelDistortion_1_0(uv, .04 * distortion * t));\n  }\n\n  return sumcol / sumw;\n}\n\n\n\n\nuniform sampler2D tDiffuse;\nuniform float distortion;\n\nvarying vec2 vUv;\n\nvoid main() {\n    gl_FragColor = apply_1_5(tDiffuse, vUv, distortion);\n}\n"
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\nhighp float random_1_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n\nuniform int mode;\nuniform float time, dt;\nuniform float death;\nuniform int recovery;\n\nuniform sampler2D textureBoundaryDepth;\nuniform vec3 boundaryMin, boundaryMax;\nuniform float emitterHeight;\n\nvoid init() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    const float seedScale = 100.0;\n    vec3 seed = vec3(random_1_0(uv.xy * seedScale), random_1_0(uv.yx * seedScale), random_1_0(vec2(time, uv.x) * seedScale));\n\n    vec3 interval = boundaryMax - boundaryMin;\n    float depth = texture2D(textureBoundaryDepth, vec2(seed.x, 1.0 - seed.z)).r;\n    float x = seed.x * interval.x + boundaryMin.x;\n    float y = (1.0 - depth) * interval.y + boundaryMin.y;\n    float z = seed.z * interval.z + boundaryMin.z;\n    gl_FragColor = vec4(x, y + emitterHeight * seed.y, z, 1.0);\n}\n\nvoid update() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    vec4 pos = texture2D(texturePosition, uv);\n    vec4 vel = texture2D(textureVelocity, uv);\n\n    float decay = random_1_0(vec2(uv.yx) * 100.0);\n    pos.w -= dt * (0.1 + 0.1 * decay) * death;\n\n    if(recovery == 1 && pos.w < 0.0)  {\n        init();\n    } else {\n        pos.xyz += vel.xyz * dt;\n        gl_FragColor = pos;\n    }\n}\n\nvoid main() {\n    if(mode == 0) {\n        init();\n    } else {\n        update();\n    }\n}\n"
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_0(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_0(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_1(vec4 x) {\n     return mod289_1_0(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_2(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_3(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_4 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_5 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_5;\n  vec3 i1 = min( g_1_5.xyz, l.zxy );\n  vec3 i2 = max( g_1_5.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_4.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_0(i);\n  vec4 p = permute_1_1( permute_1_1( permute_1_1(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_4.wyz - D_1_4.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_6 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_7 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_6.xy,h.z);\n  vec3 p3 = vec3(a1_1_6.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_2(vec4(dot(p0_1_7,p0_1_7), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_7 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_7,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\nhighp float random_2_8(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n\nuniform int mode;\nuniform float time, speed;\nuniform vec3 force;\nuniform vec3 vortexCenter;\nuniform float vortexIntensity;\n\nconst float seedScale = 100.0;\n\nvoid init() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    float r = random_2_8(uv * seedScale) * 0.02 + 0.92;\n    gl_FragColor = vec4(0.0, 0.0, 0.0, r);\n}\n\nvoid update() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n\n    vec4 pos = texture2D(texturePosition, uv);\n    if(pos.a < 0.0) {\n        init();\n    } else {\n        vec4 vel = texture2D(textureVelocity, uv);\n        vel.xyz *= vel.w;\n\n        float t = time * 0.5;\n        vec2 seed = uv * seedScale;\n\n        vec3 v = vec3(\n            (snoise_1_3(vec3(seed.x, seed.y, t) - 0.5)),\n            (snoise_1_3(vec3(seed.x, t, seed.y) - 0.5)),\n            (snoise_1_3(vec3(t, seed.y, seed.x) - 0.5))\n        ) * speed + force;\n\n        vec3 dir = vortexCenter - pos.xyz;\n        vec3 right = cross(normalize(dir), vec3(0, 1, 0));\n        v += right * vortexIntensity;\n\n        vel.xyz += v;\n\n        gl_FragColor = vel;\n    }\n}\n\nvoid main() {\n    if(mode == 0) {\n        init();\n    } else {\n        update();\n    }\n}\n"
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\nhighp float random_1_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n\n#define QUATERNION_IDENTITY vec4(0, 0, 0, 1)\n\n#ifndef PI\n#define PI 3.1415926\n#endif\n\nvec3 random_point_on_sphere(vec2 uv) {\n    float u = random_1_0(uv) * 2.0 - 1.0;\n    float theta = random_1_0(uv + 0.333) * PI * 2.0;\n    float u2 = sqrt(1.0 - u * u);\n    return vec3(u2 * cos(theta), u2 * sin(theta), u);\n}\n\n// Quaternion multiplication\n// http://mathworld.wolfram.com/Quaternion.html\nvec4 qmul(vec4 q1, vec4 q2) {\n\treturn vec4(\n\t\tq2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),\n\t\tq1.w * q2.w - dot(q1.xyz, q2.xyz)\n\t);\n}\n\n// Vector rotation with a quaternion\n// http://mathworld.wolfram.com/Quaternion.html\nvec3 rotate_vector(vec3 v, vec4 r) {\n\tvec4 r_c = r * vec4(-1, -1, -1, 1);\n\treturn qmul(r, qmul(vec4(v, 0), r_c)).xyz;\n}\n\nvec3 rotate_vector_at(vec3 v, vec3 center, vec4 r) {\n\tvec3 dir = v - center;\n\treturn center + rotate_vector(dir, r);\n}\n\n// A given angle of rotation about a given axis\nvec4 rotate_angle_axis(float angle, vec3 axis) {\n\tfloat sn = sin(angle * 0.5);\n\tfloat cs = cos(angle * 0.5);\n\treturn vec4(axis * sn, cs);\n}\n\nvec4 q_conj(vec4 q) {\n\treturn vec4(-q.x, -q.y, -q.z, q.w);\n}\n\nuniform float time;\nuniform int mode;\n\nvoid init() {\n    gl_FragColor = QUATERNION_IDENTITY;\n}\n\nvoid update() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n\n    vec4 v = texture2D(textureVelocity, uv);\n    vec4 r = texture2D(textureRotation, uv);\n\n    float theta = length(v.xyz) * 0.01 * v.w;\n    vec4 dq = vec4(random_point_on_sphere(uv) * sin(theta), cos(theta));\n\n    gl_FragColor = normalize(qmul(dq, r));\n}\n\nvoid main() {\n    if(mode == 0) {\n        init();\n    } else {\n        update();\n    }\n}\n"
 
 /***/ }),
-/* 63 */
+/* 62 */
 /***/ (function(module, exports) {
 
 	module.exports = "precision mediump float;\nprecision mediump int;\n#define GLSLIFY 1\n\nhighp float random_1_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n\n#define PI 3.1415926\n#define QUATERNION_IDENTITY vec4(0, 0, 0, 1)\n\nvec3 random_point_on_sphere(vec2 uv) {\n    float u = random_1_0(uv) * 2.0 - 1.0;\n    float theta = random_1_0(uv + 0.333) * PI * 2.0;\n    float u2 = sqrt(1.0 - u * u);\n    return vec3(u2 * cos(theta), u2 * sin(theta), u);\n}\n\n// Quaternion multiplication\n// http://mathworld.wolfram.com/Quaternion.html\nvec4 qmul(vec4 q1, vec4 q2) {\n\treturn vec4(\n\t\tq2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),\n\t\tq1.w * q2.w - dot(q1.xyz, q2.xyz)\n\t);\n}\n\n// Vector rotation with a quaternion\n// http://mathworld.wolfram.com/Quaternion.html\nvec3 rotate_vector(vec3 v, vec4 r) {\n\tvec4 r_c = r * vec4(-1, -1, -1, 1);\n\treturn qmul(r, qmul(vec4(v, 0), r_c)).xyz;\n}\n\nvec3 rotate_vector_at(vec3 v, vec3 center, vec4 r) {\n\tvec3 dir = v - center;\n\treturn center + rotate_vector(dir, r);\n}\n\n// A given angle of rotation about a given axis\nvec4 rotate_angle_axis(float angle, vec3 axis) {\n\tfloat sn = sin(angle * 0.5);\n\tfloat cs = cos(angle * 0.5);\n\treturn vec4(axis * sn, cs);\n}\n\nvec4 q_conj(vec4 q) {\n\treturn vec4(-q.x, -q.y, -q.z, q.w);\n}\n\nuniform mat4 projectionMatrix;\nuniform mat4 modelViewMatrix;\nuniform mat4 modelMatrix;\nuniform mat4 viewMatrix;\n\nuniform sampler2D textureVelocity;\nuniform sampler2D textureRotation;\nuniform sampler2D texturePosition;\n\nuniform float threshold;\nuniform float size;\n\nattribute vec3 position;\nattribute vec3 center;\nattribute vec2 uv;\nattribute vec2 uv2;\n\nvarying vec2 vUv2;\n\nvec4 billboard(vec3 pos, vec2 uv, float scale) {\n    mat4 billboardMatrix = viewMatrix;\n    billboardMatrix[3][0] = billboardMatrix[3][1] = billboardMatrix[3][2] = billboardMatrix[3][3] = 0.0;\n\n    vec4 p = vec4(vec4(pos, 1.0) + vec4((uv * 2.0 - vec2(1.0, 1.0)) * scale, 0, 1) * billboardMatrix);\n    return projectionMatrix * (viewMatrix * p);\n}\n\nvoid main() {\n    vec4 pos = texture2D(texturePosition, uv);\n    float s = size * smoothstep(0.0, 0.25, pos.w) * smoothstep(1.0, 0.7, pos.w);\n    s *= smoothstep(threshold, threshold + 3.5, pos.y);\n    gl_Position = billboard(pos.xyz, uv2, s);\n    vUv2 = uv2;\n}\n"
 
 /***/ }),
-/* 64 */
+/* 63 */
 /***/ (function(module, exports) {
 
 	module.exports = "precision mediump float;\nprecision mediump int;\n#define GLSLIFY 1\n\nuniform sampler2D textureParticle;\nuniform float alpha;\n\nvarying vec2 vUv2;\n\nvoid main() {\n    vec4 color = texture2D(textureParticle, vUv2);\n    color.a *= alpha;\n    gl_FragColor = color;\n}\n"
 
 /***/ }),
-/* 65 */
+/* 64 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\nhighp float random_1_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n\nuniform int mode, movement;\nuniform float throttle;\nuniform float speed, time, dt;\n\nuniform float limit;\n\nuniform sampler2D textureStreet;\nuniform vec4 streetTexelSize;\n\nvec3 sample_street(float t, float p) {\n    float y = (mod(floor(p * streetTexelSize.w), streetTexelSize.w) + 0.5) * streetTexelSize.z;\n    return texture2D(textureStreet, vec2(t, y)).xyz;\n}\n\nvoid init() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    float seed = random_1_0(uv.xy);\n    float seed2 = random_1_0(uv.yx);\n    float seed3 = random_1_0(uv.yx + vec2(3.17, 17.3));\n    vec3 to = sample_street(mod(seed + time, 1.0), seed2);\n    to.xy += vec2(\n        seed, seed2\n    ) * 0.01;\n    // gl_FragColor = vec4(to, mix(0.25, 1.0, seed3));\n    gl_FragColor = vec4(to, seed3);\n}\n\nvoid update() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    vec4 pos = texture2D(texturePosition, uv);\n    vec4 vel = texture2D(textureVelocity, uv);\n\n    vec3 v = vel.xyz * dt;\n\n    if(movement == 6) {\n        pos.xyz += v;\n        gl_FragColor = pos;\n        return;\n    }\n\n    float m = length(v);\n    const float threshold = 0.000001;\n    if(m > threshold) {\n        v.xy = normalize(v.xy) * clamp(m, 0.0, limit);\n        pos.xy += v.xy;\n        pos.z += v.z;\n    }\n    gl_FragColor = pos;\n}\n\nvoid main() {\n    if(mode == 0) {\n        init();\n    } else {\n        update();\n    }\n}\n"
 
 /***/ }),
-/* 66 */
+/* 65 */
 /***/ (function(module, exports) {
 
-	module.exports = "#define GLSLIFY 1\nhighp float random_2_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_1(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_1(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_2(vec4 x) {\n     return mod289_1_1(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_3(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_4(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_5 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_6 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_6;\n  vec3 i1 = min( g_1_6.xyz, l.zxy );\n  vec3 i2 = max( g_1_6.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_5.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_1(i);\n  vec4 p = permute_1_2( permute_1_2( permute_1_2(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_5.wyz - D_1_5.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_7 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_8 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_7.xy,h.z);\n  vec3 p3 = vec3(a1_1_7.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_3(vec4(dot(p0_1_8,p0_1_8), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_8 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_8,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\n\nuniform int mode, movement;\nuniform float throttle;\nuniform float speed, time, dt;\n\nuniform sampler2D textureStreet;\nuniform vec4 streetTexelSize;\n\nuniform vec2 gatherPosition;\nuniform vec2 direction;\n\nconst vec3 minVel = vec3(-1, -1, -1);\nconst vec3 maxVel = vec3(1, 1, 1);\n\nvec2 limit_vel(vec2 vel) {\n    // return clamp(vel, minVel, maxVel);\n    vel.x = clamp(vel.x, minVel.x, maxVel.x);\n    vel.y = clamp(vel.y, minVel.y, maxVel.y);\n    return vel;\n}\n\nvec3 boids(vec2 uv, vec3 pos) {\n    const float threshold = 0.002;\n    const float radius = 0.02;\n\n    const float repelThreshold = 0.2;\n    const float alignmentThreshold = 0.6;\n    const float cohesionThreshold = 0.2;\n\n    const float repelAlignmentDelta = abs(repelThreshold - alignmentThreshold);\n    const float alignmentCohesionDelta = abs(alignmentThreshold - cohesionThreshold);\n\n    vec3 v = vec3(0, 0, 0);\n\n    for(float y = 0.0; y < 1.0; y += resolutionTexelSize.y) {\n        for(float x = 0.0; x < 1.0; x += resolutionTexelSize.x) {\n            vec2 ref = vec2(x, y);\n\n            vec3 other = texture2D(texturePosition, ref).xyz;\n            vec3 dir = (pos.xyz - other.xyz);\n            float dist = length(dir);\n\n            if(dist < 0.0001 || radius < dist) continue;\n\n            float d = dist / radius;\n            if(d < repelThreshold) {\n                // repel\n                v += dir * 0.1;\n            } else if(d < alignmentThreshold) {\n                // alignment\n                vec3 vel = texture2D(textureVelocity, ref).xyz;\n                v += vel.xyz * 0.1;\n            } else {\n                // cohesion\n                v -= dir * 0.1;\n            }\n        }\n    }\n\n    return v;\n}\n\nvec3 repel(vec2 uv, vec3 pos) {\n    const float threshold = 0.002;\n\n    vec3 v = vec3(0, 0, 0);\n\n    for(float y = 0.0; y < 1.0; y += resolutionTexelSize.y) {\n        for(float x = 0.0; x < 1.0; x += resolutionTexelSize.x) {\n            vec3 other = texture2D(texturePosition, vec2(x, y)).xyz;\n            vec2 dir = (pos.xy - other.xy);\n            float dist = length(dir);\n            if(0.00001 < dist && dist < threshold) {\n                v.xy += dir;\n            }\n        }\n    }\n\n    return v;\n}\n\nvec3 sample_street(float t, float p) {\n    float y = (mod(floor(p * streetTexelSize.w), streetTexelSize.w) + 0.5) * streetTexelSize.z;\n    float ratio = texture2D(textureStreet, vec2(0.0, y)).w;\n    // float ratio = 1.0;\n    return texture2D(textureStreet, vec2(mod(t * ratio, 1.0), y)).xyz;\n}\n\nfloat get_decay(vec2 uv) {\n    return random_2_0(uv * 10.0) * 0.05 + 0.94;\n}\n\nvec4 street_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    float decay = get_decay(uv);\n    vec3 to = sample_street(time * 0.25 * decay, pos.w);\n\n    // offset\n    to.xy += vec2(\n        random_2_0(uv), random_2_0(uv.yx)\n    ) * 0.005;\n\n    vec3 dir = to.xyz - pos.xyz;\n\n    float mag = length(dir);\n    const float threshold = 0.005;\n\n    if(mag > threshold) {\n        vel.xyz += normalize(dir) * clamp(mag, 0.0, 0.001) * speed;\n    }\n\n    return vel;\n}\n\nvec4 gather_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    vec2 dir = (gatherPosition - pos.xy);\n    float mag = length(dir);\n    float threshold = 0.005 + random_2_0(uv) * 0.01; // distance\n\n    if(mag > threshold) {\n        vel.xy += normalize(dir) * clamp(mag, 0.0, 0.001) * speed;\n    } else {\n        vel.xyz *= 0.8;\n    }\n    vel.z -= pos.z * 0.1;\n\n    return vel;\n}\n\nvec4 matrix_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    vec3 dir = (vec3(uv, 0) - pos.xyz);\n    float mag = length(dir);\n    const float threshold = 0.005; // distance\n    if(mag > threshold) {\n        vel.xyz += normalize(dir) * clamp(mag, 0.0, 0.001) * speed;\n    } else {\n        vel.xyz *= 0.8;\n    }\n\n    return vel;\n}\n\nvec4 direction_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    vec3 dir = vec3(direction.xy, 0.0);\n    float mag = length(dir);\n    const float threshold = 0.005;\n    if(mag > threshold) {\n        vel.xyz += normalize(dir) * clamp(mag, 0.0, 0.01);\n    }\n\n    return vel;\n}\n\nvec4 boids_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    vec3 v = boids(uv, pos.xyz);\n    float mag = length(v);\n    const float threshold = 0.005;\n    if(mag > threshold) {\n        vel.xyz += normalize(v) * clamp(mag, 0.0, 0.01);\n    }\n\n    return vel;\n}\n\nvec4 fluid_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    float t = time * 0.1;\n    vec3 seed = pos.xyz * 0.1;\n    seed.y += t;\n    vec3 v = vec3(\n        snoise_1_4(vec3(seed.xyz)),\n        snoise_1_4(vec3(seed.yzx)),\n        snoise_1_4(vec3(seed.zxy))\n    ) * 0.00025;\n\n    vec3 dir = vec3(gatherPosition, 0) - pos.xyz;\n    vec3 right = cross(normalize(dir), vec3(0, 0, 1));\n    v += right * 0.0005;\n    v += vec3(0, 0, 0.2); // up force\n\n    vel.xyz += v;\n\n    return vel;\n}\n\nvoid init() {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n}\n\nvoid update() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    vec4 pos = texture2D(texturePosition, uv);\n    vec4 vel = texture2D(textureVelocity, uv);\n\n    float decay = get_decay(uv);\n    vel.xyz *= decay;\n\n    if(movement == 1) {\n        vel = gather_velocity(uv, pos, vel);\n    } else if(movement == 2) {\n        vel = matrix_velocity(uv, pos, vel);\n        vel.xyz += repel(uv, pos.xyz);\n    } else if(movement == 3) {\n        vel = direction_velocity(uv, pos, vel);\n        vel.xyz += repel(uv, pos.xyz);\n    } else if(movement == 4) {\n        vel = boids_velocity(uv, pos, vel);\n    } else if(movement == 5) {\n        vel.xyz += repel(uv, pos.xyz);\n    } else if(movement == 6) {\n        vel = fluid_velocity(uv, pos, vel);\n    } else {\n        vel = street_velocity(uv, pos, vel);\n        vel.xyz += repel(uv, pos.xyz) * 0.25;\n    }\n    vel.xy = limit_vel(vel.xy);\n\n    if(uv.x <= throttle) {\n        vel.w = min(vel.w + dt, 1.0);\n    } else {\n        vel.w = max(vel.w - dt, 0.0);\n    }\n\n    gl_FragColor = vel;\n}\n\nvoid main() {\n    if(mode == 0) {\n        init();\n    } else {\n        update();\n    }\n}\n"
+	module.exports = "#define GLSLIFY 1\nhighp float random_2_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n//\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec3 mod289_1_1(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289_1_1(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute_1_2(vec4 x) {\n     return mod289_1_1(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt_1_3(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise_1_4(vec3 v)\n  {\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D_1_5 = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g_1_6 = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g_1_6;\n  vec3 i1 = min( g_1_6.xyz, l.zxy );\n  vec3 i2 = max( g_1_6.xyz, l.zxy );\n\n  //   x0 = x0 - 0.0 + 0.0 * C.xxx;\n  //   x1 = x0 - i1  + 1.0 * C.xxx;\n  //   x2 = x0 - i2  + 2.0 * C.xxx;\n  //   x3 = x0 - 1.0 + 3.0 * C.xxx;\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\n  vec3 x3 = x0 - D_1_5.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\n\n// Permutations\n  i = mod289_1_1(i);\n  vec4 p = permute_1_2( permute_1_2( permute_1_2(\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients: 7x7 points over a square, mapped onto an octahedron.\n// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\n  float n_ = 0.142857142857; // 1.0/7.0\n  vec3  ns = n_ * D_1_5.wyz - D_1_5.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  //vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\n  //vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1_1_7 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0_1_8 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1_1_7.xy,h.z);\n  vec3 p3 = vec3(a1_1_7.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt_1_3(vec4(dot(p0_1_8,p0_1_8), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0_1_8 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0_1_8,x0), dot(p1,x1),\n                                dot(p2,x2), dot(p3,x3) ) );\n  }\n\n\n\n\nuniform int mode, movement;\nuniform float throttle;\nuniform float speed, time, dt;\n\nuniform sampler2D textureStreet;\nuniform vec4 streetTexelSize;\n\nuniform vec2 gatherPosition;\nuniform vec2 direction;\n\nconst vec3 minVel = vec3(-1, -1, -1);\nconst vec3 maxVel = vec3(1, 1, 1);\n\nvec2 limit_vel(vec2 vel) {\n    // return clamp(vel, minVel, maxVel);\n    vel.x = clamp(vel.x, minVel.x, maxVel.x);\n    vel.y = clamp(vel.y, minVel.y, maxVel.y);\n    return vel;\n}\n\nvec3 repel(vec2 uv, vec3 pos) {\n    const float threshold = 0.002;\n\n    vec3 v = vec3(0, 0, 0);\n\n    for(float y = 0.0; y < 1.0; y += resolutionTexelSize.y) {\n        for(float x = 0.0; x < 1.0; x += resolutionTexelSize.x) {\n            vec3 other = texture2D(texturePosition, vec2(x, y)).xyz;\n            vec2 dir = (pos.xy - other.xy);\n            float dist = length(dir);\n            if(0.00001 < dist && dist < threshold) {\n                v.xy += dir;\n            }\n        }\n    }\n\n    return v;\n}\n\nvec3 sample_street(float t, float p) {\n    float y = (mod(floor(p * streetTexelSize.w), streetTexelSize.w) + 0.5) * streetTexelSize.z;\n    float ratio = texture2D(textureStreet, vec2(0.0, y)).w;\n    // float ratio = 1.0;\n    return texture2D(textureStreet, vec2(mod(t * ratio, 1.0), y)).xyz;\n}\n\nfloat get_decay(vec2 uv) {\n    return random_2_0(uv * 10.0) * 0.05 + 0.94;\n}\n\nvec4 street_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    float decay = get_decay(uv);\n    vec3 to = sample_street(time * 0.25 * decay, pos.w);\n\n    // offset\n    to.xy += vec2(\n        random_2_0(uv), random_2_0(uv.yx)\n    ) * 0.005;\n\n    vec3 dir = to.xyz - pos.xyz;\n\n    float mag = length(dir);\n    const float threshold = 0.005;\n\n    if(mag > threshold) {\n        vel.xyz += normalize(dir) * clamp(mag, 0.0, 0.001) * speed;\n    }\n\n    return vel;\n}\n\nvec4 gather_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    vec2 dir = (gatherPosition - pos.xy);\n    float mag = length(dir);\n    float threshold = 0.005 + random_2_0(uv) * 0.01; // distance\n\n    if(mag > threshold) {\n        vel.xy += normalize(dir) * clamp(mag, 0.0, 0.001) * speed;\n    } else {\n        vel.xyz *= 0.8;\n    }\n    vel.z -= pos.z * 0.1;\n\n    return vel;\n}\n\nvec4 matrix_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    vec3 dir = (vec3(uv, 0) - pos.xyz);\n    float mag = length(dir);\n    const float threshold = 0.005; // distance\n    if(mag > threshold) {\n        vel.xyz += normalize(dir) * clamp(mag, 0.0, 0.001) * speed;\n    } else {\n        vel.xyz *= 0.8;\n    }\n\n    return vel;\n}\n\nvec4 direction_velocity(vec2 uv, vec4 pos, vec4 vel) {\n    vec3 dir = vec3(direction.xy, 0.0);\n    float mag = length(dir);\n    const float threshold = 0.005;\n    if(mag > threshold) {\n        vel.xyz += normalize(dir) * clamp(mag, 0.0, 0.01);\n    }\n\n    return vel;\n}\n\nvoid init() {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n}\n\nvoid update() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    vec4 pos = texture2D(texturePosition, uv);\n    vec4 vel = texture2D(textureVelocity, uv);\n\n    float decay = get_decay(uv);\n    vel.xyz *= decay;\n\n    if(movement == 1) {\n        vel = gather_velocity(uv, pos, vel);\n    } else if(movement == 2) {\n        vel = matrix_velocity(uv, pos, vel);\n        vel.xyz += repel(uv, pos.xyz);\n    } else if(movement == 3) {\n        vel = direction_velocity(uv, pos, vel);\n        vel.xyz += repel(uv, pos.xyz);\n    } else if(movement == 5) {\n        vel.xyz += repel(uv, pos.xyz);\n    } else {\n        vel = street_velocity(uv, pos, vel);\n        vel.xyz += repel(uv, pos.xyz) * 0.25;\n    }\n    vel.xy = limit_vel(vel.xy);\n\n    if(uv.x <= throttle) {\n        vel.w = min(vel.w + dt, 1.0);\n    } else {\n        vel.w = max(vel.w - dt, 0.0);\n    }\n\n    gl_FragColor = vel;\n}\n\nvoid main() {\n    if(mode == 0) {\n        init();\n    } else {\n        update();\n    }\n}\n"
 
 /***/ }),
-/* 67 */
+/* 66 */
 /***/ (function(module, exports) {
 
 	module.exports = "#define GLSLIFY 1\nhighp float random_1_0(vec2 co)\n{\n    highp float a = 12.9898;\n    highp float b = 78.233;\n    highp float c = 43758.5453;\n    highp float dt= dot(co.xy ,vec2(a,b));\n    highp float sn= mod(dt,3.14);\n    return fract(sin(sn) * c);\n}\n\n\n\n#define PI 3.1415926\n#define QUATERNION_IDENTITY vec4(0, 0, 0, 1)\n\nvec3 random_point_on_sphere(vec2 uv) {\n    float u = random_1_0(uv) * 2.0 - 1.0;\n    float theta = random_1_0(uv + 0.333) * PI * 2.0;\n    float u2 = sqrt(1.0 - u * u);\n    return vec3(u2 * cos(theta), u2 * sin(theta), u);\n}\n\n// Quaternion multiplication\n// http://mathworld.wolfram.com/Quaternion.html\nvec4 qmul(vec4 q1, vec4 q2) {\n\treturn vec4(\n\t\tq2.xyz * q1.w + q1.xyz * q2.w + cross(q1.xyz, q2.xyz),\n\t\tq1.w * q2.w - dot(q1.xyz, q2.xyz)\n\t);\n}\n\n// Vector rotation with a quaternion\n// http://mathworld.wolfram.com/Quaternion.html\nvec3 rotate_vector(vec3 v, vec4 r) {\n\tvec4 r_c = r * vec4(-1, -1, -1, 1);\n\treturn qmul(r, qmul(vec4(v, 0), r_c)).xyz;\n}\n\nvec3 rotate_vector_at(vec3 v, vec3 center, vec4 r) {\n\tvec3 dir = v - center;\n\treturn center + rotate_vector(dir, r);\n}\n\n// A given angle of rotation about a given axis\nvec4 rotate_angle_axis(float angle, vec3 axis) {\n\tfloat sn = sin(angle * 0.5);\n\tfloat cs = cos(angle * 0.5);\n\treturn vec4(axis * sn, cs);\n}\n\nvec4 q_conj(vec4 q) {\n\treturn vec4(-q.x, -q.y, -q.z, q.w);\n}\n\nvec4 q_look_at(vec3 forward, vec3 up) {\n    vec3 right = normalize(cross(forward, up));\n    up = normalize(cross(forward, right));\n\n    float m00 = right.x;\n    float m01 = right.y;\n    float m02 = right.z;\n    float m10 = up.x;\n    float m11 = up.y;\n    float m12 = up.z;\n    float m20 = forward.x;\n    float m21 = forward.y;\n    float m22 = forward.z;\n\n    float num8 = (m00 + m11) + m22;\n    vec4 q = QUATERNION_IDENTITY;\n    if (num8 > 0.0)\n    {\n        float num = sqrt(num8 + 1.0);\n        q.w = num * 0.5;\n        num = 0.5 / num;\n        q.x = (m12 - m21) * num;\n        q.y = (m20 - m02) * num;\n        q.z = (m01 - m10) * num;\n        return q;\n    }\n\n    if ((m00 >= m11) && (m00 >= m22))\n    {\n        float num7 = sqrt(((1.0 + m00) - m11) - m22);\n        float num4 = 0.5 / num7;\n        q.x = 0.5 * num7;\n        q.y = (m01 + m10) * num4;\n        q.z = (m02 + m20) * num4;\n        q.w = (m12 - m21) * num4;\n        return q;\n    }\n\n    if (m11 > m22)\n    {\n        float num6 = sqrt(((1.0 + m11) - m00) - m22);\n        float num3 = 0.5 / num6;\n        q.x = (m10 + m01) * num3;\n        q.y = 0.5 * num6;\n        q.z = (m21 + m12) * num3;\n        q.w = (m20 - m02) * num3;\n        return q;\n    }\n\n    float num5 = sqrt(((1.0 + m22) - m00) - m11);\n    float num2 = 0.5 / num5;\n    q.x = (m20 + m02) * num2;\n    q.y = (m21 + m12) * num2;\n    q.z = 0.5 * num5;\n    q.w = (m01 - m10) * num2;\n    return q;\n}\n\nvec4 q_slerp(vec4 a, vec4 b, float t) {\n    // if either input is zero, return the other.\n    if (length(a) == 0.0) {\n        if (length(b) == 0.0) {\n            return QUATERNION_IDENTITY;\n        }\n        return b;\n    } else if (length(b) == 0.0) {\n        return a;\n    }\n\n    float cosHalfAngle = a.w * b.w + dot(a.xyz, b.xyz);\n\n    if (cosHalfAngle >= 1.0 || cosHalfAngle <= -1.0) {\n        return a;\n    } else if (cosHalfAngle < 0.0) {\n        b.xyz = -b.xyz;\n        b.w = -b.w;\n        cosHalfAngle = -cosHalfAngle;\n    }\n\n    float blendA;\n    float blendB;\n    if (cosHalfAngle < 0.99) {\n        // do proper slerp for big angles\n        float halfAngle = acos(cosHalfAngle);\n        float sinHalfAngle = sin(halfAngle);\n        float oneOverSinHalfAngle = 1.0 / sinHalfAngle;\n        blendA = sin(halfAngle * (1.0 - t)) * oneOverSinHalfAngle;\n        blendB = sin(halfAngle * t) * oneOverSinHalfAngle;\n    } else {\n        // do lerp if angle is really small.\n        blendA = 1.0 - t;\n        blendB = t;\n    }\n\n    vec4 result = vec4(blendA * a.xyz + blendB * b.xyz, blendA * a.w + blendB * b.w);\n    if (length(result) > 0.0) {\n        return normalize(result);\n    }\n    return QUATERNION_IDENTITY;\n}\n\nuniform float dt, time;\nuniform int mode, movement;\n\nvoid align(vec2 uv) {\n    vec4 r = texture2D(textureRotation, uv);\n    vec4 vel = texture2D(textureVelocity, uv);\n    const float epsilon = 0.0001;\n\n    vel.xyz = vec3(vel.x, 0.0, -vel.y);\n    float mag = length(vel.xyz);\n    if(mag > epsilon) {\n        vec3 dir = normalize(vel.xyz);\n\n        float t = dt * mag * 200.0;\n        r = q_slerp(r, q_look_at(dir, vec3(0, -1, 0)), clamp(t, 0.0, 1.0));\n    }\n    gl_FragColor = normalize(r);\n}\n\nvoid fluid(vec2 uv) {\n    vec4 r = texture2D(textureRotation, uv);\n    vec4 vel = texture2D(textureVelocity, uv);\n\n    float theta = length(vel.xyz) * 0.0005;\n    vec4 dq = vec4(random_point_on_sphere(uv) * sin(theta), cos(theta));\n    gl_FragColor = normalize(qmul(dq, r));\n}\n\nvoid init() {\n    gl_FragColor = QUATERNION_IDENTITY;\n}\n\nvoid update() {\n    vec2 uv = gl_FragCoord.xy / resolution.xy;\n    if(movement == 6) {\n        fluid(uv);\n    } else {\n        align(uv);\n    }\n    // align(uv);\n}\n\nvoid main() {\n    if(mode == 0) {\n        init();\n    } else {\n        update();\n    }\n}\n"
 
 /***/ }),
-/* 68 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9997,7 +10004,7 @@
 	    value: true
 	});
 
-	var _vue = __webpack_require__(69);
+	var _vue = __webpack_require__(68);
 
 	var _vue2 = _interopRequireDefault(_vue);
 
@@ -10009,73 +10016,235 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Keyboard = function Keyboard(el) {
-	    _classCallCheck(this, Keyboard);
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-	    new _vue2.default({
-	        el: el,
-	        data: {
-	            characters: [["q", "w", "e", "r", "t", "y"], ["a", "s", "d", "f", "g"], ["z", "x", "c", "v", "b", "n"]],
-	            keys: [],
-	            selected: null
-	        },
-	        mounted: function mounted() {
-	            var _this = this;
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	            this.keys = this.characters.map(function (row) {
-	                return row.map(function (c) {
-	                    return {
-	                        char: c,
-	                        code: _KeyCode2.default[c],
-	                        pressed: false
-	                    };
+	var KeyCodeState = {
+	    Default: 0,
+	    Pressed: 1,
+	    Selected: 2
+	};
+
+	var Keyboard = function (_THREE$EventDispatche) {
+	    _inherits(Keyboard, _THREE$EventDispatche);
+
+	    function Keyboard(el) {
+	        _classCallCheck(this, Keyboard);
+
+	        var _this = _possibleConstructorReturn(this, (Keyboard.__proto__ || Object.getPrototypeOf(Keyboard)).call(this));
+
+	        var self = _this;
+
+	        new _vue2.default({
+	            el: el,
+	            data: {
+	                isKeyDown: false,
+	                display: false,
+	                KeyCodeState: KeyCodeState,
+	                headers: ["camera", "crowd", "city"],
+	                holdables: [_KeyCode2.default.q, _KeyCode2.default.w, _KeyCode2.default.e, _KeyCode2.default.a, _KeyCode2.default.s, _KeyCode2.default.d, _KeyCode2.default.f],
+	                toggles: [_KeyCode2.default.r, _KeyCode2.default.y, _KeyCode2.default.g, _KeyCode2.default.z, _KeyCode2.default.x],
+	                keys: [[{
+	                    key: "q",
+	                    work: "bird",
+	                    // 同時に押せないキーを定義
+	                    uncooccurrence: [_KeyCode2.default.w, _KeyCode2.default.e]
+	                }, {
+	                    key: "w",
+	                    work: "fixed",
+	                    uncooccurrence: [_KeyCode2.default.q, _KeyCode2.default.e]
+	                }, {
+	                    key: "e",
+	                    work: "orbit",
+	                    uncooccurrence: [_KeyCode2.default.q, _KeyCode2.default.w]
+	                }, {
+	                    key: "r",
+	                    work: "invert"
+	                }, {
+	                    key: "t",
+	                    work: "mirror"
+	                }, {
+	                    key: "y",
+	                    work: "glitch"
+	                }], [{
+	                    key: "a",
+	                    work: "street",
+	                    uncooccurrence: [_KeyCode2.default.s, _KeyCode2.default.d, _KeyCode2.default.f]
+	                }, {
+	                    key: "s",
+	                    work: "march",
+	                    uncooccurrence: [_KeyCode2.default.a, _KeyCode2.default.d, _KeyCode2.default.f]
+	                }, {
+	                    key: "d",
+	                    work: "gather",
+	                    uncooccurrence: [_KeyCode2.default.a, _KeyCode2.default.s, _KeyCode2.default.f]
+	                }, {
+	                    key: "f",
+	                    work: "wait",
+	                    uncooccurrence: [_KeyCode2.default.a, _KeyCode2.default.s, _KeyCode2.default.d]
+	                }, {
+	                    key: "g",
+	                    work: "noise"
+	                }, {
+	                    key: "h",
+	                    work: "shake",
+	                    // 押すと同時に発火するキーを定義
+	                    cooccurrence: _KeyCode2.default.g
+	                }], [{
+	                    key: "z",
+	                    work: "noise"
+	                }, {
+	                    key: "x",
+	                    work: "line"
+	                }]],
+	                selected: null
+	            },
+	            mounted: function mounted() {
+	                var _this2 = this;
+
+	                this.keys = this.keys.map(function (row) {
+	                    return row.map(function (elem) {
+	                        return {
+	                            key: elem.key.toUpperCase(),
+	                            work: elem.work,
+	                            code: _KeyCode2.default[elem.key],
+	                            state: KeyCodeState.Default,
+	                            cooccurrence: elem.cooccurrence,
+	                            uncooccurrence: elem.uncooccurrence
+	                        };
+	                    });
 	                });
-	            });
 
-	            document.addEventListener("keydown", function (e) {
-	                var key = _this.find(e.keyCode);
-	                _this.select(key);
-	            });
-	            document.addEventListener("keyup", function (e) {
-	                _this.reset();
-	            });
-	        },
-	        methods: {
-	            reset: function reset() {
-	                if (this.selected != null) {
-	                    this.selected.pressed = false;
-	                }
+	                document.addEventListener("keydown", function (e) {
+	                    var key = _this2.find(e.keyCode);
+	                    _this2.press(key);
+	                });
+	                document.addEventListener("keyup", function (e) {
+	                    var key = _this2.find(e.keyCode);
+	                    _this2.unpress(key);
+	                });
+
+	                // press default keys
+	                this.press(this.find(_KeyCode2.default.e));
+	                this.press(this.find(_KeyCode2.default.a));
 	            },
-	            select: function select(key) {
-	                this.reset();
-	                if (key) {
-	                    key.pressed = true;
-	                }
-	                this.selected = key;
-	            },
-	            find: function find(code) {
-	                for (var idx in this.keys) {
-	                    var row = this.keys[idx];
-	                    for (var j = 0, n = row.length; j < n; j++) {
-	                        var key = row[j];
-	                        if (key.code == code) {
-	                            return key;
+	            methods: {
+	                press: function press(key) {
+	                    var _this3 = this;
+
+	                    if (key) {
+	                        switch (key.state) {
+	                            case KeyCodeState.Pressed:
+	                                // toggle key
+	                                if (this.isToggle(key)) {
+	                                    key.state = KeyCodeState.Default;
+	                                    if (this.selected == key) {
+	                                        key.state = KeyCodeState.Selected;
+	                                    }
+	                                }
+	                                break;
+	                            default:
+	                                key.state = KeyCodeState.Pressed;
+	                                if (key.cooccurrence) {
+	                                    var cooccurrence = this.find(key.cooccurrence);
+	                                    cooccurrence.state = KeyCodeState.Pressed;
+	                                }
+	                                if (key.uncooccurrence) {
+	                                    key.uncooccurrence.forEach(function (code) {
+	                                        var other = _this3.find(code);
+	                                        if (other) {
+	                                            other.state = KeyCodeState.Default;
+	                                        }
+	                                    });
+	                                }
+	                                break;
 	                        }
 	                    }
+	                },
+	                unpress: function unpress(key) {
+	                    if (key && !this.isHoldable(key) && !this.isToggle(key)) {
+	                        key.state = KeyCodeState.Default;
+	                        if (this.selected == key) {
+	                            key.state = KeyCodeState.Selected;
+	                        }
+	                    }
+	                },
+	                select: function select(key) {
+	                    if (key && key.state != KeyCodeState.Pressed) {
+	                        key.state = KeyCodeState.Selected;
+	                    }
+	                    this.selected = key;
+	                },
+	                unselect: function unselect() {
+	                    if (this.selected && this.selected.state == KeyCodeState.Selected) {
+	                        this.selected.state = KeyCodeState.Default;
+	                    }
+	                    this.selected = null;
+	                },
+	                find: function find(code) {
+	                    for (var idx in this.keys) {
+	                        var row = this.keys[idx];
+	                        for (var j = 0, n = row.length; j < n; j++) {
+	                            var key = row[j];
+	                            if (key.code == code) {
+	                                return key;
+	                            }
+	                        }
+	                    }
+	                    return null;
+	                },
+	                isHoldable: function isHoldable(key) {
+	                    return this.holdables.find(function (code) {
+	                        return code == key.code;
+	                    });
+	                },
+	                isToggle: function isToggle(key) {
+	                    return this.toggles.find(function (code) {
+	                        return code == key.code;
+	                    });
+	                },
+	                mouseOver: function mouseOver(key) {
+	                    this.select(key);
+	                },
+	                mouseOut: function mouseOut(key) {
+	                    this.unselect();
+	                },
+	                mouseDown: function mouseDown(key) {
+	                    if (this.isKeyDown) return;
+
+	                    self.dispatchEvent({
+	                        type: "keydown",
+	                        message: {
+	                            keyCode: key.code
+	                        }
+	                    });
+	                    this.press(key);
+
+	                    this.isKeyDown = true;
+	                },
+	                mouseUp: function mouseUp(key) {
+	                    self.dispatchEvent({
+	                        type: "keyup",
+	                        message: {
+	                            keyCode: key.code
+	                        }
+	                    });
+	                    this.unpress(key);
+	                    this.isKeyDown = false;
 	                }
-	                return null;
-	            },
-	            hover: function hover(key) {
-	                this.select(key);
 	            }
-	        }
-	    });
-	};
+	        });
+	        return _this;
+	    }
+
+	    return Keyboard;
+	}(THREE.EventDispatcher);
 
 	exports.default = Keyboard;
 
 /***/ }),
-/* 69 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global) {"use strict";

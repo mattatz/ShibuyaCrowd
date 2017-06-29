@@ -1,5 +1,6 @@
 
-export default {
+
+const KeyCode = {
     space: 32,
     leftArrow: 37,
     upArrow: 38,
@@ -32,4 +33,18 @@ export default {
     y: 89,
     z: 90
 };
+
+const KeyCodeDetector = {
+
+    isArrowKey: function(keyCode) {
+        return (keyCode == KeyCode.leftArrow || keyCode == KeyCode.upArrow || keyCode == KeyCode.rightArrow || keyCode == KeyCode.downArrow);
+    }
+
+}
+
+export default KeyCode;
+
+export {
+    KeyCodeDetector
+}
 

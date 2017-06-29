@@ -76,8 +76,7 @@ void main() {
     float whiteNoise = random(vUv + noiseOffset);
     color.rgb *= vec3(1. - whiteNoise * 0.15);
     color.rgb = mix(color.rgb, vec3(1.0, 1.0, 1.0) - color.rgb, invert);
-
-    color.rgb *= fade;
+    color.rgb = mix(color.rgb, vec3(1.0, 1.0, 1.0), 1.0 - fade);
 
     gl_FragColor = color;
 }
