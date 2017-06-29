@@ -7,8 +7,10 @@ uniform float speed, time, dt;
 
 uniform float limit;
 
-uniform sampler2D textureStreet;
+uniform highp sampler2D textureStreet;
 uniform vec4 streetTexelSize;
+
+uniform vec2 gatherPosition;
 
 vec3 sample_street(float t, float p) {
     float y = (mod(floor(p * streetTexelSize.w), streetTexelSize.w) + 0.5) * streetTexelSize.z;
@@ -17,14 +19,10 @@ vec3 sample_street(float t, float p) {
 
 void init() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
-    float seed = random(uv.xy);
-    float seed2 = random(uv.yx);
+    float seed = (random(uv.xy) - 0.5) * 0.1;
+    float seed2 = (random(uv.yx) - 0.5) * 0.1;
     float seed3 = random(uv.yx + vec2(3.17, 17.3));
-    vec3 to = sample_street(mod(seed + time, 1.0), seed2);
-    to.xy += vec2(
-        seed, seed2
-    ) * 0.01;
-    // gl_FragColor = vec4(to, mix(0.25, 1.0, seed3));
+    vec3 to = vec3(gatherPosition.x + seed, gatherPosition.y + seed2, 0.0);
     gl_FragColor = vec4(to, seed3);
 }
 

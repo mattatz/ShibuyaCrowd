@@ -52,8 +52,6 @@ export default class CrowdMesh extends THREE.Mesh {
             marine ? MarineAnimation : LowpolyAnimation,
             ,
             {
-                animSpeed: { type: "f", value: 1.0 },
-
                 textureIdle: { type: "t", value: null },
                 idleTexelSize: { type: "v2", value: new THREE.Vector2(0, 0) },
 
@@ -68,7 +66,6 @@ export default class CrowdMesh extends THREE.Mesh {
                 textureRotation: { type: "t", value: options.textureRotation },
 
                 useSlit: { type: "f", value: 0.0 },
-                useSlitNoise: { type: "i", value: true },
                 slitScale: { type: "v4", value: new THREE.Vector4(5.0, 4.2, 0.1, 0.1) },
                 slitSpeed: { type: "v4", value: new THREE.Vector4(0.6, 0.6, 1, 1) },
                 slitOffset: { type: "f", value: 0.0 },
@@ -87,8 +84,6 @@ export default class CrowdMesh extends THREE.Mesh {
                 textureEnv: { type: "t", value: null },
 
                 center: { type: "v3", value: new THREE.Vector3(0, 0, 0) },
-                translation: { type: "v3", value: new THREE.Vector3(0, -1, 0) },
-                threshold: { type: "v2", value: new THREE.Vector2(0.00001, 0.0003) },
                 height: { type: "f", value: 0.0 },
                 fps: { type: "f", value: 5.0 },
                 time: { type: "f", value: 0.0 },
@@ -258,12 +253,10 @@ export default class CrowdMesh extends THREE.Mesh {
         this.frustumCulled = false;
 
         ObjectUtil.defineUniformAccessor(this, uniforms, "useSlit");
-        ObjectUtil.defineUniformAccessor(this, uniforms, "useSlitNoise");
         ObjectUtil.defineUniformAccessor(this, uniforms, "slitScale");
         ObjectUtil.defineUniformAccessor(this, uniforms, "slitSpeed");
         ObjectUtil.defineUniformAccessor(this, uniforms, "slitOffset");
         ObjectUtil.defineUniformAccessor(this, uniforms, "slitSize");
-        ObjectUtil.defineUniformAccessor(this, uniforms, "translation");
         ObjectUtil.defineUniformAccessor(this, uniforms, "useEnv");
         ObjectUtil.defineUniformAccessor(this, uniforms, "textureEnv");
 

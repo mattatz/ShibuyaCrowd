@@ -11,44 +11,37 @@ precision mediump int;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
-uniform mat3 normalMatrix;
-uniform vec3 cameraPosition;
 
 // position textures
-uniform float animSpeed;
 
-uniform sampler2D textureIdle;
+uniform highp sampler2D textureIdle;
 uniform vec2 idleTexelSize;
 uniform vec2 idleEnd;
 uniform vec3 idleAnimScale;
 uniform vec3 idleAnimOffset;
 
-uniform sampler2D textureWalk;
+uniform highp sampler2D textureWalk;
 uniform vec2 walkTexelSize;
 uniform vec2 walkEnd;
 uniform vec3 walkAnimScale;
 uniform vec3 walkAnimOffset;
 
-uniform sampler2D textureRun;
+uniform highp sampler2D textureRun;
 uniform vec2 runTexelSize;
 uniform vec2 runEnd;
 uniform vec3 runAnimScale;
 uniform vec3 runAnimOffset;
 
 uniform vec3 center;
-uniform vec3 translation;
-uniform vec2 threshold;
 uniform float fps;
 uniform float time;
 
 uniform vec3 streetScale, streetOffset;
 
-uniform sampler2D texturePosition, textureVelocity, textureRotation;
+uniform highp sampler2D texturePosition, textureVelocity, textureRotation;
 
 uniform float useSlit;
-uniform int useSlitNoise;
-uniform vec4 slitScale;
-uniform vec4 slitSpeed;
+uniform vec4 slitScale, slitSpeed;
 uniform vec3 slitSize;
 uniform float slitOffset;
 // uniform sampler2D textureNoise;
@@ -122,8 +115,6 @@ vec3 sample_animation(sampler2D tex, vec2 texelSize, vec2 end, vec3 animScale, v
 	vertex.xyz = mix(pos, pos2, tFilter);
 	#endif
 
-    // vec3 norm = normal * fluctuation.x;
-    // return vertex + norm;
     return vertex;
 }
 
@@ -155,11 +146,6 @@ vec4 rotate_angle_axis(float angle, vec3 axis) {
 	return vec4(axis * sn, cs);
 }
 
-vec3 sample_idle_from(float start, float speed, vec3 vertex) {
-    float t = mod(start + time * speed, idleEnd.x);
-    return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, vertex, uv, t);
-}
-
 vec3 sample_idle(float start, float speed) {
     float t = mod(start + time * speed, idleEnd.x);
     return sample_animation(textureIdle, idleTexelSize, idleEnd, idleAnimScale, idleAnimOffset, position, uv, t);
@@ -180,43 +166,23 @@ vec3 sample_run(float start, float speed) {
 }
 
 vec3 slit_scan_position(vec3 pos, vec2 seed) {
-    if(useSlitNoise == 1) {
-        // noise
-        float t = time * 0.1;
-        float tt = t * 0.1;
-        float offset = slitOffset * 0.15;
-        vec2 uv0 = vec2(t * slitSpeed.x + offset + pos.y * slitScale.z * 0.1, seed.x + tt);
-        vec2 uv1 = vec2(seed.y + tt, t * slitSpeed.y + offset + pos.y * slitScale.w * 0.1);
+    // noise
+    float t = time * 0.1;
+    float tt = t * 0.1;
+    float offset = slitOffset * 0.15;
+    vec2 uv0 = vec2(t * slitSpeed.x + offset + pos.y * slitScale.z * 0.1, seed.x + tt);
+    vec2 uv1 = vec2(seed.y + tt, t * slitSpeed.y + offset + pos.y * slitScale.w * 0.1);
 
-        // pos.x += (texture2D(textureNoise, uv0).r - 0.5) * slitScale.x;
-        // pos.z += (texture2D(textureNoise, uv1).r - 0.5) * slitScale.y;
-
-        pos.x += snoise2(vec2(time * slitSpeed.x + slitOffset + pos.y * slitScale.z, seed.x) - 0.5) * slitScale.x;
-        pos.z += snoise2(vec2(seed.y, time * slitSpeed.y + slitOffset + pos.y * slitScale.w) - 0.5) * slitScale.y;
-    } else {
-        // edge
-        pos.x += (random(vec2(floor(time * slitSpeed.x + slitOffset + pos.y * slitScale.z), seed.x)) - 0.5) * slitScale.x;
-        pos.z += (random(vec2(seed.y, floor(time * slitSpeed.y + slitOffset + pos.y * slitScale.w))) - 0.5) * slitScale.y;
-    }
+    // pos.x += (texture2D(textureNoise, uv0).r - 0.5) * slitScale.x;
+    // pos.z += (texture2D(textureNoise, uv1).r - 0.5) * slitScale.y;
+    pos.x += snoise2(vec2(time * slitSpeed.x + slitOffset + pos.y * slitScale.z, seed.x) - 0.5) * slitScale.x;
+    pos.z += snoise2(vec2(seed.y, time * slitSpeed.y + slitOffset + pos.y * slitScale.w) - 0.5) * slitScale.y;
     return pos;
 }
 
 vec3 slit_scan(vec3 pos, vec2 seed) {
-    vec3 p0 = slit_scan_position(pos, seed);
-    vec3 p1 = slit_scan_position(pos + vec3(0.0, 0.25, 0.0), seed);
-    return mix(p0, p1, 0.5) * slitSize;
+    return slit_scan_position(pos, seed) * slitSize;
 }
-
-/*
-void twist(inout vec3 vertex, inout vec3 normal, float intensity, float scale, float speed) {
-    float theta = sin(time * speed + vertex.y * scale) * intensity;
-    float c = cos(theta);
-    float s = sin(theta);
-    mat3 m = mat3(c, 0, s, 0, 1, 0, -s, 0, c);
-    vertex = vertex * m;
-    normal = normal * m;
-}
-*/
 
 const float edge_min = 0.01;
 const float edge_max = 1.0 - edge_min;
@@ -252,7 +218,6 @@ void alone() {
     vec3 slitPosition = slit_scan(mPosition.xyz, uv2 * 10.0);
     mPosition.xyz = mix(mPosition.xyz, slitPosition, useSlit);
     mPosition.xyz += center;
-    mPosition.xyz += translation;
     mPosition.xyz = boundary_position(mPosition.xyz, 1.0);
     // mPosition.xyz = vortex(mPosition.xyz);
 
@@ -278,12 +243,12 @@ void crowd() {
     vec3 pos;
     float speed = length(velocity.xyz);
     if(speed > runThres) {
-        pos = sample_run(fluctuation.z, fluctuation.w * animSpeed);
+        pos = sample_run(fluctuation.z, fluctuation.w);
     } else if(speed > walkThres) {
-        pos = sample_walk(fluctuation.z, fluctuation.w * animSpeed);
+        pos = sample_walk(fluctuation.z, fluctuation.w);
     } else {
-        vec3 idle = sample_idle(fluctuation.z, fluctuation.w * animSpeed);
-        vec3 walk = sample_walk(fluctuation.z, fluctuation.w * animSpeed);
+        vec3 idle = sample_idle(fluctuation.z, fluctuation.w);
+        vec3 walk = sample_walk(fluctuation.z, fluctuation.w);
         pos = mix(idle, walk, clamp(speed * invWalkThres, 0.0, 1.0));
     }
     pos.xyz *= scale;
@@ -299,11 +264,10 @@ void crowd() {
 
     vec3 slitPosition = slit_scan(mPosition.xyz, uv2 * 10.0);
     mPosition.xyz = mix(mPosition.xyz, slitPosition, useSlit);
-    mPosition.xyz += translation;
 
     vec4 tr = texture2D(texturePosition, uv2);
     vec3 streetTr = tr.xyz * streetScale + streetOffset;
-    mPosition.xyz += vec3(streetTr.x, tr.z, -streetTr.y);
+    mPosition.xyz += vec3(streetTr.x, 0, -streetTr.y);
     mPosition.xyz = boundary_position(mPosition.xyz, useBoundary);
 
     vec4 mvPosition = viewMatrix * mPosition;

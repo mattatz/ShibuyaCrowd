@@ -200,7 +200,7 @@ function GPUComputationRenderer( sizeX, sizeY, renderer ) {
 
 					uniforms[ depVar.name ] = { value: null };
 
-					material.fragmentShader = "\nuniform sampler2D " + depVar.name + ";\n" + material.fragmentShader;
+					material.fragmentShader = "\nuniform highp sampler2D " + depVar.name + ";\n" + material.fragmentShader;
 
 				}
 			}
@@ -364,7 +364,7 @@ function GPUComputationRenderer( sizeX, sizeY, renderer ) {
 
 	function getPassThroughFragmentShader() {
 
-		return	"uniform sampler2D texture;\n" +
+		return	"uniform highp sampler2D texture;\n" +
 				"\n" +
 				"void main() {\n" +
 				"\n" +

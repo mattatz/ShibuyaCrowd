@@ -6,7 +6,7 @@ uniform int mode, movement;
 uniform float throttle;
 uniform float speed, time, dt;
 
-uniform sampler2D textureStreet;
+uniform highp sampler2D textureStreet;
 uniform vec4 streetTexelSize;
 
 uniform vec2 gatherPosition;
@@ -16,7 +16,6 @@ const vec3 minVel = vec3(-1, -1, -1);
 const vec3 maxVel = vec3(1, 1, 1);
 
 vec2 limit_vel(vec2 vel) {
-    // return clamp(vel, minVel, maxVel);
     vel.x = clamp(vel.x, minVel.x, maxVel.x);
     vel.y = clamp(vel.y, minVel.y, maxVel.y);
     return vel;
@@ -76,7 +75,7 @@ vec4 street_velocity(vec2 uv, vec4 pos, vec4 vel) {
 vec4 gather_velocity(vec2 uv, vec4 pos, vec4 vel) {
     vec2 dir = (gatherPosition - pos.xy);
     float mag = length(dir);
-    float threshold = 0.005 + random(uv) * 0.01; // distance
+    float threshold = 0.005 + random(uv) * 0.1; // distance
 
     if(mag > threshold) {
         vel.xy += normalize(dir) * clamp(mag, 0.0, 0.001) * speed;

@@ -172,8 +172,9 @@ export default class ShibuyaStage extends Stage {
 
             let crowd = this.setupCrowd(textureStreet, streetScale, streetOffset);
             this.crowd = crowd;
-            crowd.system.gatherPosition = gather;
             crowd.mesh.material.uniforms.center.value.set(center.x, center.y, center.z);
+            crowd.system.gatherPosition = gather;
+            crowd.system.init();
 
             this.cameraControls.polar.center.set(center.x, center.y + 20, center.z);
 

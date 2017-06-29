@@ -46,7 +46,7 @@ export default class CrowdSystem {
 
         this.posVar.material.uniforms.limit = { type: "f", value: 0.000095 };
         this.velVar.material.uniforms.throttle = { type: "f", value: 0.0 };
-        this.velVar.material.uniforms.gatherPosition = { type: "v2", value: new THREE.Vector2(0, 0) };
+        this.posVar.material.uniforms.gatherPosition = this.velVar.material.uniforms.gatherPosition = { type: "v2", value: new THREE.Vector2(0, 0) };
         this.velVar.material.uniforms.direction = { type: "v2", value: new THREE.Vector2(directionVel, directionVel) };
 
         let texel = (1 / this.sideCount);
@@ -62,8 +62,6 @@ export default class CrowdSystem {
         this.gpuCompute.setVariableDependencies(this.posVar, [this.velVar, this.posVar]);
 
         this.gpuCompute.init();
-
-        this.init();
 
         ObjectUtil.defineUniformAccessor(this, this.posVar.material.uniforms, "movement");
         ObjectUtil.defineUniformAccessor(this, this.posVar.material.uniforms, "limit");
