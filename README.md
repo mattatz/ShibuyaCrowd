@@ -1,7 +1,7 @@
 ShibuyaCrowd
 =====================
 
-![1](https://raw.githubusercontent.com/mattatz/ShibuyaCrowd/master/captures/ShibuyaCrowd_1.gif)
+![1](https://raw.githubusercontent.com/mattatz/ShibuyaCrowd/master/Captures/ShibuyaCrowd_1.gif)
 
 ShibuyaCrowd uses Shibuya city 3D model from [3dcel](https://3dcel.com/study/case01/).
 
