@@ -129,7 +129,7 @@ $keyHeightPC: 28px;
         p.description {
             font-size: 12px;
         }
-        margin-bottom: 5px;
+        margin-bottom: 8px;
     }
 
     div.keyboard-row {
@@ -142,6 +142,8 @@ $keyHeightPC: 28px;
             width: 50px;
             height: $keyHeightPC;
             line-height: $keyHeightPC;
+
+            text-align: right;
         }
 
         ul {

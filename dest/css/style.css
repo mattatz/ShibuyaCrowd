@@ -432,7 +432,7 @@ html, body {
   .virtual-keyboard div {
     padding: 0px 10px 0px 10px; }
   .virtual-keyboard div {
-    margin-bottom: 5px; }
+    margin-bottom: 8px; }
     .virtual-keyboard div p.description {
       font-size: 12px; }
   .virtual-keyboard div.keyboard-row {
@@ -443,7 +443,8 @@ html, body {
       margin-right: 10px;
       width: 50px;
       height: 28px;
-      line-height: 28px; }
+      line-height: 28px;
+      text-align: right; }
     .virtual-keyboard div.keyboard-row ul {
       list-style: none;
       display: inline-block;

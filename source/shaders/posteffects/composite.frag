@@ -20,6 +20,17 @@ uniform float fade;
 
 varying vec2 vUv;
 
+void blockNoise(sampler2D texture, vec2 uv, float t, float rgbWave, float rgbDiff, vec2 scale, vec2 strength, inout float mask, inout vec3 color) {
+    float m = step((snoise3(vec3(0.0, uv.x * scale.x, t)) + 1.0) * 0.5, strength.x) * step((snoise3(vec3(0.0, uv.y * scale.y, t)) + 1.0) * 0.5, strength.y);
+    float x = uv.x + sin(t) * 0.2 + rgbWave;
+    mask += m;
+    color += vec3(
+        texture2D(texture, vec2(x + rgbDiff, uv.y)).r * m,
+        texture2D(texture, vec2(x, uv.y)).g * m,
+        texture2D(texture, vec2(x - rgbDiff, uv.y)).b * m
+    );
+} 
+
 vec4 glitch(sampler2D texture, vec2 uv, float strength, float speed, vec2 wave, float shift, vec2 scale) {
     float t = time * speed;
 
@@ -34,26 +45,11 @@ vec4 glitch(sampler2D texture, vec2 uv, float strength, float speed, vec2 wave, 
 
     vec3 rgb = texture2D(texture, uv).rgb;
 
-    float bnTime = floor(t * 2.0);
-    float noiseX = step((snoise3(vec3(0.0, uv.x * scale.x, bnTime)) + 1.0) * 0.5, strength * 0.3);
-    float noiseY = step((snoise3(vec3(0.0, uv.y * scale.y, bnTime)) + 1.0) * 0.5, strength * 0.3);
-    float bnMask = noiseX * noiseY;
-    float bnUvX = uv.x + sin(bnTime) * 0.2 + rgbWave;
-    float bnR = texture2D(texture, vec2(bnUvX + rgbDiff, uv.y)).r * bnMask;
-    float bnG = texture2D(texture, vec2(bnUvX, uv.y)).g * bnMask;
-    float bnB = texture2D(texture, vec2(bnUvX - rgbDiff, uv.y)).b * bnMask;
-    vec4 blockNoise = vec4(bnR, bnG, bnB, 1.0);
-
-    float bnTime2 = floor(t * 2.5);
-    float noiseX2 = step((snoise3(vec3(0.0, uv.x * 2.0 * scale.x, bnTime2)) + 1.0) * 0.5, strength * 0.5);
-    float noiseY2 = step((snoise3(vec3(0.0, uv.y * 8.0 * scale.y, bnTime2)) + 1.0) * 0.5, strength * 0.3);
-    float bnMask2 = noiseX2 * noiseY2;
-    float bnR2 = texture2D(texture, vec2(bnUvX + rgbDiff, uv.y)).r * bnMask2;
-    float bnG2 = texture2D(texture, vec2(bnUvX, uv.y)).g * bnMask2;
-    float bnB2 = texture2D(texture, vec2(bnUvX - rgbDiff, uv.y)).b * bnMask2;
-    vec4 blockNoise2 = vec4(bnR2, bnG2, bnB2, 1.0);
-
-    return vec4(rgb, 1.0) * (1.0 - bnMask - bnMask2) + (blockNoise + blockNoise2);
+    float mask = 0.0;
+    vec3 block = vec3(0.0);
+    blockNoise(texture, uv, floor(t * 1.0), rgbWave, rgbDiff, scale, vec2(strength * 0.3), mask, block);
+    blockNoise(texture, uv, floor(t * 2.5), rgbWave, rgbDiff, vec2(scale.x * 2.0, scale.y * 8.0), vec2(strength * 0.5, strength * 0.3), mask, block);
+    return vec4(rgb, 1.0) * (1.0 - mask) + vec4(block, 1.0);
 }
 
 vec2 mirror_uv(vec2 uv) {

@@ -9,6 +9,8 @@ const KeyCodeState = {
     Selected: 2
 };
 
+const THRESHOLD_WIDTH = 640;
+
 export default class Keyboard extends THREE.EventDispatcher {
 
     constructor(el) {
@@ -19,8 +21,8 @@ export default class Keyboard extends THREE.EventDispatcher {
         new Vue({
             el: el,
             data: {
+                isMobile: false,
                 isKeyDown: false,
-                display: false,
                 KeyCodeState: KeyCodeState,
                 headers: [
                     "camera", "crowd", "city"
@@ -143,8 +145,17 @@ export default class Keyboard extends THREE.EventDispatcher {
                 // press default keys
                 this.press(this.find(KeyCode.e));
                 this.press(this.find(KeyCode.a));
+
+                window.addEventListener("resize", () => {
+                    this.resize();
+                });
+                this.resize();
             },
             methods: {
+                resize: function() {
+                    let w = window.innerWidth;
+                    this.isMobile = (w < THRESHOLD_WIDTH);
+                },
                 press: function(key) {
                     if(key) {
                         switch(key.state) {
