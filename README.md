@@ -3,9 +3,9 @@ ShibuyaCrowd
 
 ![1](https://raw.githubusercontent.com/mattatz/ShibuyaCrowd/master/Captures/ShibuyaCrowd_1.gif)
 
-ShibuyaCrowd uses Shibuya city 3D model from [3dcel](https://3dcel.com/study/case01/).
+ShibuyaCrowd is a webgl experiment that uses Shibuya city 3D models from [3dcel](https://3dcel.com/study/case01/).
 
-This was performed at [REPUBLIC](http://www.womb.co.jp/event/2017/06/24/republic/).
+This was performed as VJing at [REPUBLIC](http://www.womb.co.jp/event/2017/06/24/republic/).
 
 ## Demo
 
